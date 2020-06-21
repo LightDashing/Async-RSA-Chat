@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session, relationship
 import hashlib
 import datetime
 
-engine = sqlalchemy.create_engine('postgresql://postgres:rjkbx270220@localhost:5432/postgres', echo=True)
+engine = sqlalchemy.create_engine('postgresql://postgres:1@localhost:5432/postgres', echo=True)
 
 Base = declarative_base()
 
@@ -30,7 +30,7 @@ class UserData(Base):
 class ServerDB:
 
     def __init__(self):
-        self.engine = sqlalchemy.create_engine('postgresql://postgres:rjkbx270220@localhost:5432/postgres', echo=True)
+        self.engine = sqlalchemy.create_engine('postgresql://postgres:1@localhost:5432/postgres', echo=True)
         self.session = Session(bind=self.engine)
 
     def is_user_exist(self, login: str) -> bool:

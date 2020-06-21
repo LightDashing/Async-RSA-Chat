@@ -9,9 +9,9 @@ class Settings:
         if not os.path.isfile(self.settings_file):
             self.create_settings()
 
-    def create_settings(self):
+    def create_settings(self, username, password, email):
         with open(self.settings_file, 'w') as file:
-            settings = {'login': 'User', 'password': 'None', 'email': 'None', 'servers': ''}
+            settings = {'login': username, 'password': password, 'email': email, 'servers': ''}
             json.dump(settings, file)
 
     def get_settings(self) -> dict:

@@ -68,12 +68,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.settings = Settings()
         self.user_settings = self.settings.get_settings()
+        self.username_input.setText(self.user_settings['login'])
+        self.password_input.setText(self.user_settings['password'])
+        self.email_input.setText(self.user_settings['email'])
+        self.user_settings = self.settings.get_settings()
         self.ip = None
         self.port = None
 
         self.s_list_model = QtGui.QStandardItemModel()
         self.server_list.setModel(self.s_list_model)
 
+        self.send_message_button.clicked.connect(self.button_handler)
+        self.save_user_button.clicked.connect(self.save_user)
         self.servers: dict = self.user_settings['servers']
         for k, v in self.servers.items():
             row = f'{k} {v["ip"]}:{v["port"]}'
@@ -129,6 +135,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def append_text(self, content: str):
         self.message_box.appendPlainText(content)
+
+    def save_user(self):
+        username = self.username_input.text()
+        password = self.password_input.text()
+        email = self.email_input.text()
+        self.user_settings['login'] = username
+        self.user_settings['password'] = password
+        self.user_settings['email'] = email
+        self.settings.set_settings(self.user_settings)
 
     def build_protocol(self):
         self.protocol = ClientProtocol(self)
