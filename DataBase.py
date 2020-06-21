@@ -3,10 +3,11 @@ from sqlalchemy.types import Integer, Text, VARCHAR, DateTime
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, relationship
+from ServerSettings import ServerSettings
 import hashlib
 import datetime
 
-engine = sqlalchemy.create_engine('postgresql://postgres:rjkbx270220@localhost:5432/postgres', echo=True)
+engine = sqlalchemy.create_engine('postgresql://postgres:Useles1344gh@localhost:5432/postgres', echo=True)
 
 Base = declarative_base()
 
@@ -30,7 +31,9 @@ class UserData(Base):
 class ServerDB:
 
     def __init__(self):
-        self.engine = sqlalchemy.create_engine('postgresql://postgres:rjkbx270220@localhost:5432/postgres', echo=True)
+        self.ServerSettings = ServerSettings()
+        serverdata = self.ServerSettings.get_settings()
+        self.engine = sqlalchemy.create_engine(serverdata['server'], echo=True)
         self.session = Session(bind=self.engine)
 
     def is_user_exist(self, login: str) -> bool:
@@ -57,8 +60,7 @@ class ServerDB:
     def sign_in(self, login: str, password: str, email: str):
         self.session = Session(bind=self.engine)
         self.session.add(
-            UserData(login=login, password=password_hashing(password), email=email, created_at=datetime.datetime.now(),
-                     write_key='1', read_key='1'))
+            UserData(login=login, password=password_hashing(password), email=email, created_at=datetime.datetime.now()))
         self.session.commit()
         self.session.close()
 
