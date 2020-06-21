@@ -66,7 +66,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
-        self.send_message.clicked.connect(self.button_handler)
+        self.send_message_button.clicked.connect(self.button_handler)
 
     def button_handler(self):
         message_text = self.message_input.text()
