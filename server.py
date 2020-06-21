@@ -77,7 +77,7 @@ class Server:
 
     def __init__(self):
         self.clients = []
-        self.MainBD = ServerDB()
+        self.MainBD = ServerDB()  # TODO: Добавить конфигурацию сервера через JSON
 
     def build_protocol(self):
         return ServerProtocol(self)

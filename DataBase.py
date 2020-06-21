@@ -57,8 +57,7 @@ class ServerDB:
     def sign_in(self, login: str, password: str, email: str):
         self.session = Session(bind=self.engine)
         self.session.add(
-            UserData(login=login, password=password_hashing(password), email=email, created_at=datetime.datetime.now(),
-                     write_key='1', read_key='1'))
+            UserData(login=login, password=password_hashing(password), email=email, created_at=datetime.datetime.now()))
         self.session.commit()
         self.session.close()
 

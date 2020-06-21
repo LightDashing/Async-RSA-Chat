@@ -19,9 +19,9 @@ class Settings:
             settings = json.load(file)
         return settings
 
-    def set_settings(self, dict):
+    def set_settings(self, dct: dict):
         with open(self.settings_file, 'w') as file:
-            json.dump(dict, file)
+            json.dump(dct, file)
 
     def __str__(self):
         with open(self.settings_file, 'r') as file:
