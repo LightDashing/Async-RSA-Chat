@@ -1,13 +1,11 @@
 import os
 import json
-from Crypto.PublicKey import RSA
 
 
 class Settings:
 
     def __init__(self):
         self.settings_file = "settings.json"
-        self.rsa_vault = 'rsa.key'
         if not os.path.isfile(self.settings_file):
             self.create_settings()
 

@@ -3,6 +3,7 @@
 #
 import asyncio
 from asyncio import transports
+from aioconsole import ainput
 import pickle
 from DataBase import ServerDB
 from Crypto.PublicKey import RSA
@@ -81,6 +82,25 @@ class Server:
     def build_protocol(self):
         return ServerProtocol(self)
 
+    async def listening(self):
+        command = ''
+        while True:
+            if command.lower() == 'users':
+                print(f'На сервере {len(self.clients)} пользователей')
+            elif command.lower() == 'list':
+                logins = ''
+                for user in self.clients:
+                    logins += f'{user.login} '
+                print('Список пользователей: ', logins)
+            elif command.lower()[:4] == 'kick':
+                for user in self.clients:
+                    if user.login == command[5:]:
+                        user.transport.close()
+                        print(f'Пользователь {command[5:]} был исключён')
+                    else:
+                        print(f'Пользователя с ником {command[5:]} не существует!')
+            command = await ainput()
+
     async def start(self):
         loop = asyncio.get_running_loop()
 
@@ -97,7 +117,11 @@ class Server:
 
 process = Server()
 
+
+async def main():
+    await asyncio.gather(process.start(), process.listening())
+
 try:
-    asyncio.run(process.start())
+    asyncio.run(main())
 except KeyboardInterrupt:
     print("Сервер остановлен вручную")

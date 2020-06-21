@@ -20,6 +20,5 @@ def decrypt(private_key, message: bytes) -> str:
     session_key = cipher_rsa.decrypt(enc_session_key)
     cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
     message = cipher_aes.decrypt_and_verify(cipher_text, tag)
-    message = str(message)
-    message = message[message.find("'") + 1:message.rfind("'")]
+    message = str(message.decode('utf-8'))
     return message
