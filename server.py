@@ -110,9 +110,12 @@ class Server:
                         print(f'Пользователь {command[5:]} был исключён')
                     else:
                         print(f'Пользователя с ником {command[5:]} не существует!')
-            elif command.lower() == 'kickall':
+            elif command.lower() == 'allkick':
+                count = 0
                 for user in self.clients:
                     user.transport.close()
+                    count +=1
+                print(f'Количество исключенных пользователей : {count} ')
 
             command = await ainput()
 
