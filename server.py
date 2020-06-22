@@ -110,8 +110,10 @@ class Server:
                         print(f'Пользователь {command[5:]} был исключён')
                     else:
                         print(f'Пользователя с ником {command[5:]} не существует!')
-            elif command.lower()[:4] == 'break':
-                await self.stop()
+            elif command.lower() == 'kickall':
+                for user in self.clients:
+                    user.transport.close()
+
             command = await ainput()
 
     async def start(self):
