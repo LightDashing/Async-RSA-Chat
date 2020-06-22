@@ -1,4 +1,6 @@
-import os,json
+import json
+import os
+
 
 class ServerSettings:
     def __init__(self):
@@ -8,7 +10,7 @@ class ServerSettings:
 
     def create_settings(self):
         with open(self.settings_file, 'w') as file:
-            settings = {'whitelist': True,  'server': 'postgresql://postgres:Useles1344gh@localhost:5432/postgres'}
+            settings = {'whitelist': True,  'server': 'postgresql://postgres:rjkbx270220@localhost:5432/postgres'}
             json.dump(settings, file)
 
     def get_settings(self) -> dict:
@@ -16,9 +18,9 @@ class ServerSettings:
             settings = json.load(file)
         return settings
 
-    def set_settings(self, dict):
+    def set_settings(self, dct: dict):
         with open(self.settings_file, 'w') as file:
-            json.dump(dict, file)
+            json.dump(dct, file)
 
     def __str__(self):
         with open(self.settings_file, 'r') as file:

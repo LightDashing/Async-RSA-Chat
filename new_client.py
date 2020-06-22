@@ -3,8 +3,8 @@
 #
 import asyncio
 from asyncio import transports
-from PySide2.QtWidgets import QMainWindow, QApplication
-from PySide2 import QtGui
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PySide2 import QtGui, QtWidgets
 from asyncqt import QEventLoop
 from main_interface import Ui_MainWindow
 from Settings import Settings
@@ -37,9 +37,9 @@ class ClientProtocol(asyncio.Protocol):
             self.public = RSA.import_key(self.public)
             return
 
-        if pack['state'] == 3:
+        if pack['state'] == 3 or pack['state'] == 4:
             self.window.append_text(pack['message'])
-            return 
+            return
 
         message = decrypt(self.private, pack['message'])
         message = f'{pack["login"]}: {message}'
@@ -89,16 +89,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             row = QtGui.QStandardItem(row)
             self.s_list_model.appendRow(row)
 
+        self.server_list.clicked.connect(self.make_buttons_active)
         self.send_message_button.clicked.connect(self.send_button_handler)
         self.connect_server_button.clicked.connect(self.connect_button_handler)
+        self.connect_server_button.setEnabled(False)
         self.disconnect_server_button.clicked.connect(self.disconnect_button_handler)
         self.delete_server_button.clicked.connect(self.delete_server)
+        self.delete_server_button.setEnabled(False)
         self.add_server_button.clicked.connect(self.add_server)
         self.show()
 
     def servers_changed(self):
         self.user_settings['servers'] = self.servers
         self.settings.set_settings(self.user_settings)
+
+    def make_buttons_active(self):
+        self.connect_server_button.setEnabled(True)
+        self.delete_server_button.setEnabled(True)
 
     def send_button_handler(self):
         message_text = self.message_input.text()
@@ -108,6 +115,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def add_server(self):
         name = self.ip_servername.text()
         ip = self.ip_input.text()
+        if not ip or not name:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText('You need to add server ip and name')
+            msg.setWindowTitle("Error")
+            msg.exec_()
+            return
         port = self.port_input.text()
         server = f'{name} {ip}:{port}'
         server = QtGui.QStandardItem(server)
@@ -132,6 +147,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         item = str(item.data())
         event_loop = asyncio.get_running_loop()
         event_loop.create_task(self.start(item[item.find(" ") + 1:item.rfind(":")], item[item.find(":") + 1:]))
+        self.tabWidget.setCurrentWidget(self.tab_chat)
 
     def disconnect_button_handler(self):
         self.protocol.transport.close()
@@ -161,7 +177,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ip,
             port
         )
-        await asyncio.wait_for(coroutine, 1000)
+        try:
+            await asyncio.wait_for(coroutine, 1000)
+        except ConnectionRefusedError:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText("Server doesn't responding")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+            self.tabWidget.setCurrentWidget(self.tab_servers)
+            return
 
 
 app = QApplication()

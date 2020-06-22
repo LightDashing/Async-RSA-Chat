@@ -7,7 +7,8 @@ from ServerSettings import ServerSettings
 import hashlib
 import datetime
 
-engine = sqlalchemy.create_engine('postgresql://postgres:Useles1344gh@localhost:5432/postgres', echo=True)
+# engine = sqlalchemy.create_engine('postgresql://postgres:rjkbx270220@localhost:5432/postgres', echo=True,
+                                  #pool_pre_ping=True)
 
 Base = declarative_base()
 
@@ -64,7 +65,9 @@ class ServerDB:
         self.session.commit()
         self.session.close()
 
-Base.metadata.create_all(engine)
+
+#Base.metadata.create_all(engine)
+
 # session.add(User(id=0, username='Nickolay Chugunnicov', password=password_hashing('!1!2qe@3ry?'),email='chugunnic@gmail.com', updated_at=datetime.datetime.now(), created_at=datetime.datetime.now()))
 # session.add(Post(id=0, content='This is ORM-based Postgres Table!', comments='This is so cool! \n I want it too!', created_at=datetime.datetime.now(), created_by=0))
 # post = session.query(Post).filter(User.id==0).all()

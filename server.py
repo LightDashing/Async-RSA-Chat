@@ -20,9 +20,9 @@ class ServerProtocol(asyncio.Protocol):
 
     def __init__(self, server: 'Server'):
         self.server = server
-        self.ServerSettings = ServerSettings()
-        servedata = self.ServerSettings.get_settings()
-        self.whitelistmode = servedata['whitelist']
+        # self.ServerSettings = ServerSettings()
+        # servedata = self.ServerSettings.get_settings()
+        # self.whitelistmode = servedata['whitelist']
         self.key_pair = RSA.generate(2048)
         self.private_key = self.key_pair.export_key()
         self.private_key = RSA.import_key(self.private_key)
@@ -30,13 +30,25 @@ class ServerProtocol(asyncio.Protocol):
     def data_received(self, data: bytes):
         pack = pickle.loads(data)
         if not self.logged_in:
-            if self.whitelistmode and not self.server.MainBD.is_user_exist(pack['login']):
-                message = {'login': 'Server', 'message': 'В данный момент действует режим WhiteList! Вы не зарегистрированы на сервере. \t Дождитесь отключения этого режима!', 'state': 3}
+            for user in self.server.clients:
+                if user.login == pack['login']:
+                    message = {'login': 'Server',
+                               'message': 'На сервере уже есть пользователь с таким ником!',
+                               'state': 4}
+                    message = pickle.dumps(message)
+                    self.transport.write(message)
+                    self.transport.close()
+                    self.server.clients.remove(self)
+            if self.server.whitelistmode and not self.server.MainBD.is_user_exist(pack['login']):
+                message = {'login': 'Server',
+                           'message': 'В данный момент действует режим WhiteList! Вы не зарегистрированы на сервере. '
+                                      '\t Дождитесь отключения этого режима!',
+                           'state': 3}
                 message = pickle.dumps(message)
                 self.transport.write(message)
                 self.transport.close()
                 self.server.clients.remove(self)
-            elif not self.whitelistmode:
+            elif not self.server.whitelistmode:
                 if not self.server.MainBD.is_user_exist(pack['login']):
                     message = {'login': 'Server',
                                'message': f"Добро пожаловать на сервер, {pack['login']}! \t Зайдя сюда, вы "
@@ -46,7 +58,7 @@ class ServerProtocol(asyncio.Protocol):
                     self.server.MainBD.sign_in(pack["login"], pack['password'], pack['email'])
             if not self.server.MainBD.login(pack['login'], pack['password']):
                 message = {'login': 'Server', 'message': 'Неправильное сочетание логина и пароля \t Поменяйте их в '
-                                                             'настройках и перезайдите на сервер!', 'state': 2}
+                                                         'настройках и перезайдите на сервер!', 'state': 2}
                 message = pickle.dumps(message)
                 self.transport.write(message)
                 self.transport.close()
@@ -54,7 +66,7 @@ class ServerProtocol(asyncio.Protocol):
             self.public_key = pack['public_key']
             self.public_key = RSA.import_key(self.public_key)
             message = {'login': 'Server', 'message': 'Вы успешно зашли на сервер!',
-                           'public': self.key_pair.publickey().export_key(), 'state': 1}
+                       'public': self.key_pair.publickey().export_key(), 'state': 1}
             message = pickle.dumps(message)
             self.transport.write(message)
             self.logged_in = True
@@ -89,6 +101,9 @@ class Server:
     def __init__(self):
         self.clients = []
         self.MainBD = ServerDB()  # TODO: Добавить конфигурацию сервера через JSON
+        self.settings = ServerSettings()
+        self.server_settings = self.settings.get_settings()
+        self.whitelistmode = self.server_settings['whitelist']
 
     def build_protocol(self):
         return ServerProtocol(self)
@@ -128,11 +143,13 @@ class Server:
 
         await coroutine.serve_forever()
 
+
 process = Server()
 
 
 async def main():
     await asyncio.gather(process.start(), process.listening())
+
 
 try:
     asyncio.run(main())
