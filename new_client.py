@@ -37,6 +37,10 @@ class ClientProtocol(asyncio.Protocol):
             self.public = RSA.import_key(self.public)
             return
 
+        if pack['state'] == 3:
+            self.window.append_text(pack['message'])
+            return 
+
         message = decrypt(self.private, pack['message'])
         message = f'{pack["login"]}: {message}'
         self.window.append_text(message)
@@ -78,7 +82,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.s_list_model = QtGui.QStandardItemModel()
         self.server_list.setModel(self.s_list_model)
 
-        self.send_message_button.clicked.connect(self.button_handler)
         self.save_user_button.clicked.connect(self.save_user)
         self.servers: dict = self.user_settings['servers']
         for k, v in self.servers.items():
