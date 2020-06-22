@@ -1,0 +1,4 @@
+{
+  "whitelist": true,
+  "server": "postgresql://postgres:Useles1344gh@localhost:5432/postgres"
+}
