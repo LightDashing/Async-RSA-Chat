@@ -44,22 +44,22 @@ class ServerProtocol(asyncio.Protocol):
                     message = pickle.dumps(message)
                     self.transport.write(message)
                     self.server.MainBD.sign_in(pack["login"], pack['password'], pack['email'])
-                if not self.server.MainBD.login(pack['login'], pack['password']):
-                    message = {'login': 'Server', 'message': 'Неправильное сочетание логина и пароля \t Поменяйте их в '
-                                                             'настройках и перезайдите на сервер!', 'state': 2}
-                    message = pickle.dumps(message)
-                    self.transport.write(message)
-                    self.transport.close()
-                    self.server.clients.remove(self)
-                self.public_key = pack['public_key']
-                self.public_key = RSA.import_key(self.public_key)
-                message = {'login': 'Server', 'message': 'Вы успешно зашли на сервер!',
-                           'public': self.key_pair.publickey().export_key(), 'state': 1}
+            if not self.server.MainBD.login(pack['login'], pack['password']):
+                message = {'login': 'Server', 'message': 'Неправильное сочетание логина и пароля \t Поменяйте их в '
+                                                         'настройках и перезайдите на сервер!', 'state': 2}
                 message = pickle.dumps(message)
                 self.transport.write(message)
-                self.logged_in = True
-                self.login = pack['login']
-                return
+                self.transport.close()
+                self.server.clients.remove(self)
+            self.public_key = pack['public_key']
+            self.public_key = RSA.import_key(self.public_key)
+            message = {'login': 'Server', 'message': 'Вы успешно зашли на сервер!',
+                       'public': self.key_pair.publickey().export_key(), 'state': 1}
+            message = pickle.dumps(message)
+            self.transport.write(message)
+            self.logged_in = True
+            self.login = pack['login']
+            return
 
         message = decrypt(self.private_key, pack['message'])
         print(message)
