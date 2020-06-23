@@ -7,7 +7,7 @@ from ServerSettings import ServerSettings
 import hashlib
 import datetime
 
-# engine = sqlalchemy.create_engine('postgresql://postgres:rjkbx270220@localhost:5432/postgres', echo=True,
+# engine = sqlalchemy.create_engine('postgresql://postgres:1@localhost:5432/postgres', echo=True,
                                   #pool_pre_ping=True)
 
 Base = declarative_base()

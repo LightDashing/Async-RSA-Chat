@@ -70,6 +70,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+
+        self.setStyleSheet(open('./style.css').read())
+
         self.settings = Settings()
         self.user_settings = self.settings.get_settings()
         self.username_input.setText(self.user_settings['login'])

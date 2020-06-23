@@ -9,10 +9,10 @@
 ################################################################################
 
 from PySide2.QtCore import (QCoreApplication, QDate, QDateTime, QMetaObject,
-    QObject, QPoint, QRect, QSize, QTime, QUrl, Qt)
+                            QObject, QPoint, QRect, QSize, QTime, QUrl, Qt, QRegExp)
 from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
-    QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
-    QPixmap, QRadialGradient)
+                           QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
+                           QPixmap, QRadialGradient, QRegExpValidator)
 from PySide2.QtWidgets import *
 
 
@@ -23,6 +23,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(583, 659)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
+        MainWindow.setFixedSize(583, 659)
         self.verticalLayout_2 = QVBoxLayout(self.centralwidget)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.tabWidget = QTabWidget(self.centralwidget)
@@ -125,6 +126,22 @@ class Ui_MainWindow(object):
         self.label_server = QLabel(self.groupBox_addserver)
         self.label_server.setObjectName(u"label_server")
 
+        self.label_logo_image = QLabel(self.groupBox_registration)
+        self.label_logo_image.setObjectName(u"label_logo_image")
+        self.label_logo_image.setPixmap(QPixmap(u"logo_image.png"))
+        self.label_logo_image.setScaledContents(False)
+        self.label_logo_image.setAlignment(Qt.AlignCenter)
+        self.label_logo_image.setWordWrap(False)
+        self.label_logo_image.setOpenExternalLinks(False)
+
+        self.formLayout.setWidget(5, QFormLayout.SpanningRole, self.label_logo_image)
+
+        self.verticalSpacer = QSpacerItem(20, 110, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.formLayout.setItem(4, QFormLayout.SpanningRole, self.verticalSpacer)
+
+        self.verticalSpacer = QSpacerItem(20, 120, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.formLayout.setItem(6, QFormLayout.SpanningRole, self.verticalSpacer)
+
         self.formLayout_2.setWidget(0, QFormLayout.LabelRole, self.label_server)
 
         self.ip_servername = QLineEdit(self.groupBox_addserver)
@@ -143,7 +160,9 @@ class Ui_MainWindow(object):
         self.ip_input.setAutoFillBackground(False)
         self.ip_input.setMaxLength(15)
         self.ip_input.setFrame(True)
-        self.ip_input.setEchoMode(QLineEdit.Normal)
+        self.ip_input.setInputMask("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+                                   "\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+        self.ip_input.setValidator(QRegExpValidator(self.ip_input.inputMask()))
 
         self.formLayout_2.setWidget(1, QFormLayout.FieldRole, self.ip_input)
 
