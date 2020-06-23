@@ -65,7 +65,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-
+        self.setStyleSheet(open('./style.css').read())
         self.send_message_button.clicked.connect(self.button_handler)
 
     def button_handler(self):

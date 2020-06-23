@@ -6,12 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>557</width>
-    <height>655</height>
+    <width>594</width>
+    <height>673</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>RSA Chat</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background: #62cbf9</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -33,7 +36,7 @@
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true"/>
+       <string notr="true">font-family: 'Google Sans'; font-size: 13px</string>
       </property>
       <property name="tabPosition">
        <enum>QTabWidget::North</enum>
@@ -59,7 +62,7 @@
       <property name="tabBarAutoHide">
        <bool>false</bool>
       </property>
-      <widget class="QWidget" name="user">
+      <widget class="QWidget" name="tab_user">
        <property name="styleSheet">
         <string notr="true"/>
        </property>
@@ -68,7 +71,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <widget class="QGroupBox" name="groupBox_2">
+         <widget class="QGroupBox" name="groupBox_registration">
           <property name="title">
            <string>User registration</string>
           </property>
@@ -76,7 +79,7 @@
            <item>
             <layout class="QFormLayout" name="formLayout">
              <item row="0" column="0">
-              <widget class="QLabel" name="label">
+              <widget class="QLabel" name="label_username">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Username&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
@@ -92,7 +95,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEdit">
+              <widget class="QLineEdit" name="username_input">
                <property name="text">
                 <string/>
                </property>
@@ -108,7 +111,7 @@
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QLabel" name="label_2">
+              <widget class="QLabel" name="label_password">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Password&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
@@ -124,7 +127,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEdit_2">
+              <widget class="QLineEdit" name="password_input">
                <property name="echoMode">
                 <enum>QLineEdit::Password</enum>
                </property>
@@ -137,7 +140,7 @@
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QLabel" name="label_3">
+              <widget class="QLabel" name="label_email">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;E-mail&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
@@ -153,7 +156,7 @@
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLineEdit" name="lineEdit_3">
+              <widget class="QLineEdit" name="email_input">
                <property name="placeholderText">
                 <string>E-mail</string>
                </property>
@@ -163,7 +166,13 @@
               </widget>
              </item>
              <item row="3" column="0" colspan="2">
-              <widget class="QPushButton" name="pushButton">
+              <widget class="QPushButton" name="save_user_button">
+               <property name="styleSheet">
+                <string notr="true">background: #3d5acb;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;</string>
+               </property>
                <property name="text">
                 <string>Save</string>
                </property>
@@ -176,7 +185,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="servers">
+      <widget class="QWidget" name="tab_servers">
        <attribute name="title">
         <string>Servers</string>
        </attribute>
@@ -184,7 +193,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QGroupBox" name="groupBox_3">
+           <widget class="QGroupBox" name="groupBox_addserver">
             <property name="title">
              <string>New server</string>
             </property>
@@ -192,28 +201,28 @@
              <item>
               <layout class="QFormLayout" name="formLayout_2">
                <item row="0" column="0">
-                <widget class="QLabel" name="label_4">
+                <widget class="QLabel" name="label_server">
                  <property name="text">
                   <string>Server's name</string>
                  </property>
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QLineEdit" name="lineEdit_4">
+                <widget class="QLineEdit" name="ip_servername">
                  <property name="clearButtonEnabled">
                   <bool>true</bool>
                  </property>
                 </widget>
                </item>
                <item row="1" column="0">
-                <widget class="QLabel" name="label_5">
+                <widget class="QLabel" name="label_ip">
                  <property name="text">
                   <string>IP adress</string>
                  </property>
                 </widget>
                </item>
                <item row="1" column="1">
-                <widget class="QLineEdit" name="lineEdit_5">
+                <widget class="QLineEdit" name="ip_input">
                  <property name="autoFillBackground">
                   <bool>false</bool>
                  </property>
@@ -235,14 +244,20 @@
                 </widget>
                </item>
                <item row="3" column="0" colspan="2">
-                <widget class="QPushButton" name="pushButton_2">
+                <widget class="QPushButton" name="add_server_button">
+                 <property name="styleSheet">
+                  <string notr="true">background: #3d5acb;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;</string>
+                 </property>
                  <property name="text">
                   <string>Add server</string>
                  </property>
                 </widget>
                </item>
                <item row="2" column="1">
-                <widget class="QSpinBox" name="spinBox">
+                <widget class="QSpinBox" name="port_input">
                  <property name="minimum">
                   <number>1000</number>
                  </property>
@@ -255,7 +270,7 @@
                 </widget>
                </item>
                <item row="2" column="0">
-                <widget class="QLabel" name="label_6">
+                <widget class="QLabel" name="label_port">
                  <property name="text">
                   <string>Port</string>
                  </property>
@@ -267,7 +282,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="groupBox">
+           <widget class="QGroupBox" name="groupBox_serverlist">
             <property name="styleSheet">
              <string notr="true"/>
             </property>
@@ -278,17 +293,29 @@
              <item>
               <layout class="QGridLayout" name="gridLayout">
                <item row="0" column="0" colspan="2">
-                <widget class="QListView" name="listView"/>
+                <widget class="QListView" name="server_list"/>
                </item>
                <item row="1" column="0">
-                <widget class="QPushButton" name="pushButton_4">
+                <widget class="QPushButton" name="delete_server_button">
+                 <property name="styleSheet">
+                  <string notr="true">background: #3d5acb;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;</string>
+                 </property>
                  <property name="text">
                   <string>Delete</string>
                  </property>
                 </widget>
                </item>
                <item row="1" column="1">
-                <widget class="QPushButton" name="pushButton_5">
+                <widget class="QPushButton" name="connect_server_button">
+                 <property name="styleSheet">
+                  <string notr="true">background: #3d5acb;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;</string>
+                 </property>
                  <property name="text">
                   <string>Connect</string>
                  </property>
@@ -303,48 +330,64 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="chat">
+      <widget class="QWidget" name="tab_chat">
        <property name="enabled">
         <bool>true</bool>
        </property>
        <attribute name="title">
         <string>Chat</string>
        </attribute>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>237</x>
-          <y>10</y>
-          <width>291</width>
-          <height>571</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QPlainTextEdit" name="plainTextEdit">
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_3">
-           <property name="text">
-            <string>Send</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QPushButton" name="disconnect_server_button">
+            <property name="styleSheet">
+             <string notr="true">background:rgb(255, 89, 111);
+color: #fff;
+padding: 10px;
+border-radius: 5px;</string>
+            </property>
+            <property name="text">
+             <string>Disconnect</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="message_box">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="message_input"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="send_message_button">
+            <property name="styleSheet">
+             <string notr="true">background :rgb(0, 255, 127);
+
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;</string>
+            </property>
+            <property name="text">
+             <string>Send</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>

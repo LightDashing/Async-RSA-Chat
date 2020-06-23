@@ -1,0 +1,74 @@
+QWidget.MainWindow {
+    background: #62cbf9;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+}
+QPushButton
+{
+background: #3d5acb;
+color: #fff;
+padding: 10px;
+border-radius: 5px;
+}
+QPushButton.disconnect_server_button
+{
+    background:red;
+
+}
+
+QPushButton:pressed {
+    background-color: #2c75ff;
+}
+QTabWidget::pane {
+    border-top: 2px solid #C2C7CB;
+}
+
+QTabWidget::tab-bar {
+    left: 5px;
+}
+
+
+QTabBar::tab {
+    width: 175%;
+    background: #2476ed;
+    border: 2px solid #C4C4C3;
+    border-bottom-color: #C2C7CB;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    min-width: 8ex;
+    padding: 2px;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover {
+    background: #3d5acb;
+}
+
+QTabBar::tab:selected {
+    border-color: #3d5acb;
+    border-bottom-color: #C2C7CB;
+    color: black;
+    font-weight: bold;
+}
+
+QTabBar::tab:!selected {
+    margin-top: 2px;
+}
+QLabel {
+color: black;
+font-weight: bold;
+}
+QLineEdit {
+    padding: 8 px;
+    border-radius: 5px;
+}
+QListView {
+background : white;
+padding: 8 px;
+border-radius: 5px;
+}
+QListView::item:selected {
+    background: #3d5acb;
+    border: 1px solid #6a6ea9;
+}
+
