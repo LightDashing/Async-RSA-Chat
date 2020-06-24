@@ -89,7 +89,7 @@ class ServerProtocol(asyncio.Protocol):
         print("A new user has arrived.")
 
     def connection_lost(self, exception):
-        pack = {'login': ''}
+        pack = {'login': '', 'color':'red'}
         message = f'User {self.login} is disconnected!'
         self.send_message(pack, message, 5)
         for user in self.server.clients:
@@ -101,7 +101,7 @@ class ServerProtocol(asyncio.Protocol):
     def send_message(self, content: dict, message: str, state: int = None):
         for user in self.server.clients:
             msg = encrypt(user.public_key, message)
-            pack = {'login': content['login'], 'message': msg, 'state': state}
+            pack = {'login': content['login'], 'message': msg, 'state': state, 'color': content['color']}
             pack = pickle.dumps(pack)
             user.transport.write(pack)
 
@@ -109,7 +109,7 @@ class ServerProtocol(asyncio.Protocol):
         if state == 7:
             users = "Users list:"
             for user in self.server.clients:
-                users += f' {user.login}'
+                users += f' {user.login},'
             msg = encrypt(self.public_key, users)
             pack = {'message': msg, 'state': 7}
             pack = pickle.dumps(pack)
@@ -118,7 +118,7 @@ class ServerProtocol(asyncio.Protocol):
         for user in self.server.clients:
             if user.login == to:
                 msg = encrypt(user.public_key, message)
-                pack = {'login': content['login'], 'message': msg, 'state': state}
+                pack = {'login': content['login'], 'message': msg, 'state': state, 'color': content['color']}
                 pack = pickle.dumps(pack)
                 user.transport.write(pack)
                 return
@@ -185,7 +185,6 @@ process = Server()
 
 async def main():
     await asyncio.gather(process.start(), process.listening())
-
 
 try:
     asyncio.run(main())

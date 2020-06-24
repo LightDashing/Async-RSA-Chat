@@ -2,7 +2,7 @@
 # Клиентское приложение с интерфейсом
 #
 import asyncio
-import sys,time
+import sys, time
 from asyncio import transports
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
 from PySide2 import QtGui, QtWidgets
@@ -12,7 +12,7 @@ from Settings import Settings
 import pickle
 from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt
-from PyQt5.QtGui import QIcon
+from PySide2.QtGui import QIcon
 
 
 class ClientProtocol(asyncio.Protocol):
@@ -30,7 +30,7 @@ class ClientProtocol(asyncio.Protocol):
         self.login = data['login']
         self.password = data['password']
         self.email = data['email']
-
+        self.color = "#800080"
 
     def data_received(self, data: bytes):
         pack = pickle.loads(data)
@@ -51,10 +51,11 @@ class ClientProtocol(asyncio.Protocol):
             return
 
         if pack['state'] == 6:
-            blue = "<span style=\" font-weight:600; font-style: italic; color: orange;\" >"
-            message =  decrypt(self.private, pack['message'])
-            message = f'<span style=\" font-weight:600;font-size:11px\" >{time.strftime("%H:%M", time.localtime())}</span> {pack["login"]}: {message}'
-            blue += f"{message}</span>"
+            blue = ""
+            message = decrypt(self.private, pack['message'])
+            message = f'<span style=\" font-weight:400; font-style:normal; color:black ;font-size:11px\" >{time.strftime("%H:%M", time.localtime())}</span> ' \
+                      f'<span style=\"color:{pack["color"]}; font-weight:400; font-style:normal\">  {pack["login"]}: </span>{message} '
+            blue += f"<span style=\" font-weight:600; font-style: italic; color: orange;\" > {message}</span>"
             self.window.append_text(blue)
             return
 
@@ -66,13 +67,14 @@ class ClientProtocol(asyncio.Protocol):
             return
 
         message = decrypt(self.private, pack['message'])
-        message = f'<span style=\" font-weight:400;font-size:11px\" >{time.strftime("%H:%M", time.localtime())}</span> {pack["login"]}: {message}'
+        message = f'<span style=\" font-weight:400;font-size:11px\" >{time.strftime("%H:%M", time.localtime())}</span>' \
+                  f'<span style=\"color:{pack["color"]}\">  {pack["login"]}: </span> {message}'
         message = "<span style=\" font-size:13px; color:black;\" >" + message
         self.window.append_text(message)
 
     def send_data(self, message: str):
         message = encrypt(self.public, message)
-        pack = {'login': self.login, 'email': self.email, 'message': message, 'state': None}
+        pack = {'login': self.login, 'email': self.email, 'message': message, 'state': None, 'color': self.color}
         pack = pickle.dumps(pack)
         self.transport.write(pack)
 
@@ -80,14 +82,16 @@ class ClientProtocol(asyncio.Protocol):
         msg = message
         if message != 'Empty':
             message = encrypt(self.public, message)
-            pack = {"login": self.login, 'email': self.email, 'message': message, 'to': to, 'state': state}
-            blue = "<span style=\" font-weight:600; font-style: italic; color: orange;\" >"
-            blue += f'{self.login}: {msg}</span>'
+            pack = {"login": self.login, 'email': self.email, 'message': message, 'to': to, 'state': state,
+                    'color': self.color}
+            blue = f'<span style=\" font-weight:400;font-size:11px\" >{time.strftime("%H:%M", time.localtime())}</span>'
+            blue += f'<span style=\"color:{pack["color"]}\">  {pack["login"]}: </span> <span style=\"' \
+                    f'font-weight:600; font-style: italic; color: orange;\" > {msg}</span> '
             self.window.append_text(blue)
             pack = pickle.dumps(pack)
         else:
             message = encrypt(self.public, message)
-            pack = {"login": self.login, 'email': self.email, 'message': message, 'state': state}
+            pack = {"login": self.login, 'email': self.email, 'message': message, 'state': state, "color": self.color}
             pack = pickle.dumps(pack)
         self.transport.write(pack)
 
@@ -112,6 +116,7 @@ class ClientProtocol(asyncio.Protocol):
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     protocol: ClientProtocol
+
     def closeEvent(self, event):
         print(event)
         close = QMessageBox.question(self,
@@ -123,6 +128,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             sys.exit(0)
         else:
             event.ignore()
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -161,7 +167,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.clean_chat_button.clicked.connect(self.clean_chat)
         self.show()
 
-
     def create_error(self, error: str):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
@@ -179,14 +184,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def make_buttons_active(self):
         self.connect_server_button.setEnabled(True)
         self.delete_server_button.setEnabled(True)
+
     # def spacestr(str):
     def send_button_handler(self):
         message_text = self.message_input.text()
-        if message_text == "":return
+        if message_text == "": return
         count = 0
         for i in message_text:
-            if i.isspace(): count+=1
-        if count == len(message_text):return
+            if i.isspace(): count += 1
+        if count == len(message_text): return
 
         if message_text[:3] == "!pm":
             user_login = message_text[4:message_text.rfind(":")]
@@ -276,7 +282,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             port
         )
         try:
-            await asyncio.wait_for(coroutine, 1000)
+            await asyncio.wait_for(coroutine, 5)
             self.running = True
         except (ConnectionRefusedError, ConnectionError, OSError):
             self.create_error('Connection Error')

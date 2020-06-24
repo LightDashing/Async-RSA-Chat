@@ -9,7 +9,7 @@ class Settings:
         if not os.path.isfile(self.settings_file):
             self.create_settings()
 
-    def create_settings(self, username, password, email):
+    def create_settings(self):
         with open(self.settings_file, 'w') as file:
             settings = {'login': username, 'password': password, 'email': email, 'servers': ''}
             json.dump(settings, file)
