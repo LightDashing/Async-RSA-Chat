@@ -77,6 +77,9 @@ class ServerProtocol(asyncio.Protocol):
         if pack['state'] == 2:
             self.send_pm(pack, message, pack['to'])
             return
+        elif pack['state'] == 3:
+            self.send_pm(state=7)
+            return
         print(message)
         self.send_message(pack, message)
 
@@ -102,11 +105,20 @@ class ServerProtocol(asyncio.Protocol):
             pack = pickle.dumps(pack)
             user.transport.write(pack)
 
-    def send_pm(self, content: dict, message: str, to: str):
+    def send_pm(self, content: dict = None, message: str = None, to: str = None, state: int = 6):
+        if state == 7:
+            users = "Users list:"
+            for user in self.server.clients:
+                users += f' {user.login}'
+            msg = encrypt(self.public_key, users)
+            pack = {'message': msg, 'state': 7}
+            pack = pickle.dumps(pack)
+            self.transport.write(pack)
+            return
         for user in self.server.clients:
             if user.login == to:
                 msg = encrypt(user.public_key, message)
-                pack = {'login': content['login'], 'message': msg, 'state': 6}
+                pack = {'login': content['login'], 'message': msg, 'state': state}
                 pack = pickle.dumps(pack)
                 user.transport.write(pack)
                 return
@@ -159,8 +171,8 @@ class Server:
         loop = asyncio.get_running_loop()
         self.coroutine = await loop.create_server(
             self.build_protocol,
-            '127.0.0.1',
-            8888
+            '192.168.1.35',
+            25332
         )
 
         print("The server is running ...")

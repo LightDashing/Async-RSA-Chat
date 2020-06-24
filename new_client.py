@@ -12,7 +12,6 @@ from Settings import Settings
 import pickle
 from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt
-import qdarkstyle
 
 
 class ClientProtocol(asyncio.Protocol):
@@ -50,11 +49,18 @@ class ClientProtocol(asyncio.Protocol):
             return
 
         if pack['state'] == 6:
-            blue = "<span style=\" font-weight:600; color:#191970;\" >"
+            blue = "<span style=\" font-weight:600; font-style: italic; color: orange;\" >"
             message =  decrypt(self.private, pack['message'])
             message = f'{pack["login"]}: {message}'
             blue += f"{message}</span>"
             self.window.append_text(blue)
+            return
+
+        if pack['state'] == 7:
+            yellowtext = "<span style=\" font-weight:600; color:#540099;\" >"
+            yellowtext += decrypt(self.private, pack['message'])
+            yellowtext += "</span>"
+            self.window.append_text(yellowtext)
             return
 
         message = decrypt(self.private, pack['message'])
@@ -68,14 +74,19 @@ class ClientProtocol(asyncio.Protocol):
         pack = pickle.dumps(pack)
         self.transport.write(pack)
 
-    def send_pm(self, message: str, to: str):
+    def send_pm(self, message: str, to: str = None, state: int = 2):
         msg = message
-        message = encrypt(self.public, message)
-        pack = {"login": self.login, 'email': self.email, 'message': message, 'to': to, 'state': 2}
-        blue = "<span style=\" font-weight:600; font-style: italic; color: orange;\" >"
-        blue += f'{self.login}: {msg}</span>'
-        self.window.append_text(blue)
-        pack = pickle.dumps(pack)
+        if message != 'Empty':
+            message = encrypt(self.public, message)
+            pack = {"login": self.login, 'email': self.email, 'message': message, 'to': to, 'state': state}
+            blue = "<span style=\" font-weight:600; font-style: italic; color: orange;\" >"
+            blue += f'{self.login}: {msg}</span>'
+            self.window.append_text(blue)
+            pack = pickle.dumps(pack)
+        else:
+            message = encrypt(self.public, message)
+            pack = {"login": self.login, 'email': self.email, 'message': message, 'state': state}
+            pack = pickle.dumps(pack)
         self.transport.write(pack)
 
     def connection_made(self, transport: transports.Transport):
@@ -172,6 +183,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             user_login = message_text[4:message_text.rfind(":")]
             message_text = message_text[message_text.rfind(":") + 1:]
             self.protocol.send_pm(message_text, user_login)
+            self.message_input.clear()
+            return
+        if message_text.lower() == "!list":
+            self.protocol.send_pm(state=3, message='Empty')
             self.message_input.clear()
             return
 
