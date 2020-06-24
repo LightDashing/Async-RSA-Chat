@@ -10,7 +10,8 @@ class ServerSettings:
 
     def create_settings(self):
         with open(self.settings_file, 'w') as file:
-            settings = {'whitelist': True,  'server': 'postgresql://postgres:rjkbx270220@localhost:5432/postgres'}
+            settings = {'whitelist': True, 'server': 'postgresql://postgres:1234@localhost:5432/postgres',
+                        'server_ip': '127.0.0.1', 'server_port': '25332'}
             json.dump(settings, file)
 
     def get_settings(self) -> dict:

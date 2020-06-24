@@ -20,9 +20,6 @@ class ServerProtocol(asyncio.Protocol):
 
     def __init__(self, server: 'Server'):
         self.server = server
-        # self.ServerSettings = ServerSettings()
-        # serverdata = self.ServerSettings.get_settings()
-        # self.whitelistmode = serverdata['whitelist']
         self.key_pair = RSA.generate(2048)
         self.private_key = self.key_pair.export_key()
         self.private_key = RSA.import_key(self.private_key)
@@ -71,6 +68,9 @@ class ServerProtocol(asyncio.Protocol):
             self.transport.write(message)
             self.logged_in = True
             self.login = pack['login']
+            pack = {'login': ''}
+            message = f'User {self.login} is connected!'
+            self.send_message(pack, message, 5)
             return
 
         message = decrypt(self.private_key, pack['message'])
@@ -83,13 +83,19 @@ class ServerProtocol(asyncio.Protocol):
         print("A new user has arrived.")
 
     def connection_lost(self, exception):
-        self.server.clients.remove(self)
+        pack = {'login': ''}
+        message = f'User {self.login} is disconnected!'
+        self.send_message(pack, message, 5)
+        for user in self.server.clients:
+            if user.login == self.login:
+                print(user)
+                self.server.clients.remove(user)
         print("The user is out now.")
 
-    def send_message(self, content: dict, message: str):
+    def send_message(self, content: dict, message: str, state: int = None):
         for user in self.server.clients:
             msg = encrypt(user.public_key, message)
-            pack = {'login': content['login'], 'message': msg, 'state': 'None'}
+            pack = {'login': content['login'], 'message': msg, 'state': state}
             pack = pickle.dumps(pack)
             user.transport.write(pack)
 
@@ -98,9 +104,6 @@ class Server:
     clients: list
 
     def __init__(self):
-        # self.key_pair = RSA.generate(2048)
-        # self.private_key = self.key_pair.export_key()
-        # self.private_key = RSA.import_key(self.private_key)
         self.clients = []
         self.MainBD = ServerDB()
         self.settings = ServerSettings()
@@ -125,7 +128,7 @@ class Server:
                 for user in self.clients:
                     if user.login == command[5:]:
                         user.transport.close()
-                        print(f'User {command[5:]} has been banned.')
+                        print(f'User {command[5:]} has been kicked.')
                     else:
                         print(f'There is no user with a nickname {command[5:]}.')
             elif command.lower() == 'kickall':
@@ -135,6 +138,8 @@ class Server:
                 self.coroutine.close()
                 print('Сервер был остановлен')
                 exit()
+            elif command.lower() == 'soft restart':
+                pass
 
             command = await ainput()
 
