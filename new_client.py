@@ -40,9 +40,16 @@ class ClientProtocol(asyncio.Protocol):
         if pack['state'] == 3 or pack['state'] == 4 or pack['state'] == 2:
             self.window.append_text(pack['message'])
             return
+        if pack['state'] == 5:
+            yellowtext = "<span style=\" font-size:8pt; font-weight:600; color:#540099;\" >"
+            yellowtext += decrypt(self.private,pack['message'])
+            yellowtext += "</span>"
+            self.window.append_text(yellowtext)
+            return
 
         message = decrypt(self.private, pack['message'])
         message = f'{pack["login"]}: {message}'
+        message = "<span style=\" font-size:8pt; font-weight:600; color:black;\" >" + message
         self.window.append_text(message)
 
     def send_data(self, message: str):
@@ -53,7 +60,7 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def connection_made(self, transport: transports.Transport):
-        redText = "<span style=\" font-size:11pt; font-weight:600; color:#ff0000;\" >"
+        redText = "<span style=\" font-size:8pt; font-weight:600; color:#00e600;\" >"
         redText += "Connected!"
         redText += "</span>"
         self.window.append_text(redText)
@@ -64,7 +71,10 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def connection_lost(self, exception):
-        self.window.append_text("Disconnected!")
+        greenText = "<span style=\" font-size:8pt; font-weight:600; color:#ff0000;\" >"
+        greenText += "Disconnected!"
+        greenText += "</span>"
+        self.window.append_text(greenText)
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -189,7 +199,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
             msg.setText("Error")
-            msg.setInformativeText("Server doesn't responding")
             msg.setWindowTitle("Error")
             msg.exec_()
             self.tabWidget.setCurrentWidget(self.tab_servers)
