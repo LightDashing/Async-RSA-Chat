@@ -74,6 +74,9 @@ class ServerProtocol(asyncio.Protocol):
             return
 
         message = decrypt(self.private_key, pack['message'])
+        if pack['state'] == 2:
+            self.send_pm(pack, message, pack['to'])
+            return
         print(message)
         self.send_message(pack, message)
 
@@ -98,6 +101,15 @@ class ServerProtocol(asyncio.Protocol):
             pack = {'login': content['login'], 'message': msg, 'state': state}
             pack = pickle.dumps(pack)
             user.transport.write(pack)
+
+    def send_pm(self, content: dict, message: str, to: str):
+        for user in self.server.clients:
+            if user.login == to:
+                msg = encrypt(user.public_key, message)
+                pack = {'login': content['login'], 'message': msg, 'state': 6}
+                pack = pickle.dumps(pack)
+                user.transport.write(pack)
+                return
 
 
 class Server:
@@ -131,12 +143,12 @@ class Server:
                         print(f'User {command[5:]} has been kicked.')
                     else:
                         print(f'There is no user with a nickname {command[5:]}.')
-            elif command.lower() == 'kickall':
+            elif command.lower() == 'allkick':
                 for user in self.clients:
                     user.transport.close()
             elif command.lower() == 'close':
                 self.coroutine.close()
-                print('Сервер был остановлен')
+                print('Server has been shutdown')
                 exit()
             elif command.lower() == 'soft restart':
                 pass
