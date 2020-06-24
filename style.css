@@ -62,6 +62,7 @@ QTabBar::tab:!selected {
     margin-top: 2px;
 }
 
+
 QLabel {
     color: black;
     font-weight: bold;

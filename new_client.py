@@ -2,9 +2,10 @@
 # Клиентское приложение с интерфейсом
 #
 import asyncio
+import sys
 from asyncio import transports
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
-from PySide2 import QtGui, QtWidgets, QtCore
+from PySide2 import QtGui, QtWidgets
 from asyncqt import QEventLoop
 from main_interface import Ui_MainWindow
 from Settings import Settings
@@ -12,7 +13,6 @@ import pickle
 from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt
 import qdarkstyle
-import sys
 
 
 class ClientProtocol(asyncio.Protocol):
@@ -50,7 +50,7 @@ class ClientProtocol(asyncio.Protocol):
             return
 
         if pack['state'] == 6:
-            blue = "<span style=\" font-weight:600; font-style: italic; color: orange;\" >"
+            blue = "<span style=\" font-weight:600; color:#191970;\" >"
             message =  decrypt(self.private, pack['message'])
             message = f'{pack["login"]}: {message}'
             blue += f"{message}</span>"
@@ -99,7 +99,17 @@ class ClientProtocol(asyncio.Protocol):
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     protocol: ClientProtocol
-
+    def closeEvent(self, event):
+        print(event)
+        close = QMessageBox.question(self,
+                                     "QUIT",
+                                     "Are you sure want to stop process?",
+                                     QMessageBox.Yes | QMessageBox.No)
+        if close == QMessageBox.Yes:
+            event.accept()
+            sys.exit(0)
+        else:
+            event.ignore()
     def __init__(self):
         super().__init__()
         self.setupUi(self)
