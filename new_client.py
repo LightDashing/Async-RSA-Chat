@@ -68,8 +68,12 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def send_pm(self, message: str, to: str):
+        msg = message
         message = encrypt(self.public, message)
         pack = {"login": self.login, 'email': self.email, 'message': message, 'to': to, 'state': 2}
+        blue = "<span style=\" font-weight:600; color:#191970;\" >"
+        blue += f'{self.login}: {msg}</span>'
+        self.window.append_text(blue)
         pack = pickle.dumps(pack)
         self.transport.write(pack)
 
@@ -157,6 +161,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             user_login = message_text[4:message_text.rfind(":")]
             message_text = message_text[message_text.rfind(":") + 1:]
             self.protocol.send_pm(message_text, user_login)
+            self.message_input.clear()
             return
 
         self.message_input.clear()
