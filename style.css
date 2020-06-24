@@ -101,3 +101,12 @@ QTextEdit {
     padding: 8px;
     border-radius: 5px;
 }
+
+QPushButton.reconnect_server_button:pressed {
+    QWidget.MainWindow {
+    background: #252525;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    }
+}

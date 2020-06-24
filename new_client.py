@@ -11,6 +11,7 @@ from Settings import Settings
 import pickle
 from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt
+import qdarkstyle
 import sys
 
 
@@ -49,7 +50,7 @@ class ClientProtocol(asyncio.Protocol):
             return
 
         if pack['state'] == 6:
-            blue = "<span style=\" font-weight:600; color:#191970;\" >"
+            blue = "<span style=\" font-weight:600; font-style: italic; color: orange;\" >"
             message =  decrypt(self.private, pack['message'])
             message = f'{pack["login"]}: {message}'
             blue += f"{message}</span>"
@@ -71,7 +72,7 @@ class ClientProtocol(asyncio.Protocol):
         msg = message
         message = encrypt(self.public, message)
         pack = {"login": self.login, 'email': self.email, 'message': message, 'to': to, 'state': 2}
-        blue = "<span style=\" font-weight:600; color:#191970;\" >"
+        blue = "<span style=\" font-weight:600; font-style: italic; color: orange;\" >"
         blue += f'{self.login}: {msg}</span>'
         self.window.append_text(blue)
         pack = pickle.dumps(pack)
@@ -247,7 +248,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.create_error('Connection Error')
 
 
+# dark_stylesheet = qdarkstyle.load_stylesheet_pyside2()
 app = QApplication()
+# app.setStyleSheet(dark_stylesheet)
 loop = QEventLoop(app)
 asyncio.set_event_loop(loop)
 
