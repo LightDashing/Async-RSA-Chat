@@ -1,6 +1,4 @@
 {
   "whitelist": false,
-  "server": "postgresql://postgres:rjkbx270220@localhost:5432/postgres",
-  "ip": "192.168.1.35",
-  "port": "25332"
+  "server": "postgresql://postgres:1@localhost:5432/postgres"
 }

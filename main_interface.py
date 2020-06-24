@@ -225,34 +225,44 @@ class Ui_MainWindow(object):
         self.tab_chat = QWidget()
         self.tab_chat.setObjectName(u"tab_chat")
         self.tab_chat.setEnabled(True)
-        self.verticalLayout_8 = QVBoxLayout(self.tab_chat)
-        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
-        self.verticalLayout_3 = QVBoxLayout()
+        self.verticalLayout_3 = QVBoxLayout(self.tab_chat)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.gridLayout_2 = QGridLayout()
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.disconnect_server_button = QPushButton(self.tab_chat)
         self.disconnect_server_button.setObjectName(u"disconnect_server_button")
 
-        self.verticalLayout_3.addWidget(self.disconnect_server_button)
+        self.gridLayout_2.addWidget(self.disconnect_server_button, 0, 0, 1, 1)
+
+        self.reconnect_server_button = QPushButton(self.tab_chat)
+        self.reconnect_server_button.setObjectName(u"reconnect_server_button")
+
+        self.gridLayout_2.addWidget(self.reconnect_server_button, 0, 1, 1, 1)
+
+        self.clean_chat_button = QPushButton(self.tab_chat)
+        self.clean_chat_button.setObjectName(u"clean_chat_button")
+
+        self.gridLayout_2.addWidget(self.clean_chat_button, 0, 2, 1, 1)
 
         self.message_box = QTextEdit(self.tab_chat)
         self.message_box.setObjectName(u"message_box")
         self.message_box.setFrameShape(QFrame.StyledPanel)
         self.message_box.setReadOnly(True)
 
-        self.verticalLayout_3.addWidget(self.message_box)
+        self.gridLayout_2.addWidget(self.message_box, 1, 0, 1, 3)
 
         self.message_input = QLineEdit(self.tab_chat)
         self.message_input.setObjectName(u"message_input")
 
-        self.verticalLayout_3.addWidget(self.message_input)
+        self.gridLayout_2.addWidget(self.message_input, 2, 0, 1, 3)
 
         self.send_message_button = QPushButton(self.tab_chat)
         self.send_message_button.setObjectName(u"send_message_button")
 
-        self.verticalLayout_3.addWidget(self.send_message_button)
+        self.gridLayout_2.addWidget(self.send_message_button, 3, 0, 1, 3)
 
 
-        self.verticalLayout_8.addLayout(self.verticalLayout_3)
+        self.verticalLayout_3.addLayout(self.gridLayout_2)
 
         self.tabWidget.addTab(self.tab_chat, "")
 
@@ -294,5 +304,19 @@ class Ui_MainWindow(object):
         self.disconnect_server_button.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
         self.send_message_button.setText(QCoreApplication.translate("MainWindow", u"Send", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_chat), QCoreApplication.translate("MainWindow", u"Chat", None))
+    #if QT_CONFIG(shortcut)
+        self.delete_server_button.setShortcut(QCoreApplication.translate("MainWindow", u"Del", None))
+    #endif // QT_CONFIG(shortcut)
+        self.connect_server_button.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
+    #if QT_CONFIG(shortcut)
+        self.connect_server_button.setShortcut(QCoreApplication.translate("MainWindow", u"Return", None))
+    #endif // QT_CONFIG(shortcut)
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_servers), QCoreApplication.translate("MainWindow", u"Servers", None))
+        self.disconnect_server_button.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
+        self.reconnect_server_button.setText(QCoreApplication.translate("MainWindow", u"Reconnect", None))
+        self.clean_chat_button.setText(QCoreApplication.translate("MainWindow", u"Clean", None))
+        self.send_message_button.setText(QCoreApplication.translate("MainWindow", u"Send", None))
+    #if QT_CONFIG(shortcut)
+        self.send_message_button.setShortcut(QCoreApplication.translate("MainWindow", u"Return", None))
     # retranslateUi
 

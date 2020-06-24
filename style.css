@@ -96,7 +96,7 @@ QGroupBox::title {
     padding-right: 10px;
 }
 
-QPlainTextEdit {
+QTextEdit {
     background: white;
     padding: 8px;
     border-radius: 5px;

@@ -41,7 +41,7 @@ class ClientProtocol(asyncio.Protocol):
             self.window.append_text(pack['message'])
             return
         if pack['state'] == 5:
-            yellowtext = "<span style=\" font-size:8pt; font-weight:600; color:#540099;\" >"
+            yellowtext = "<span style=\" font-weight:600; color:#540099;\" >"
             yellowtext += decrypt(self.private,pack['message'])
             yellowtext += "</span>"
             self.window.append_text(yellowtext)
@@ -49,7 +49,7 @@ class ClientProtocol(asyncio.Protocol):
 
         message = decrypt(self.private, pack['message'])
         message = f'{pack["login"]}: {message}'
-        message = "<span style=\" font-size:8pt; font-weight:600; color:black;\" >" + message
+        # message = "<span style=\" font-size:8pt; font-weight:600; color:black;\" >" + message
         self.window.append_text(message)
 
     def send_data(self, message: str):
@@ -60,7 +60,7 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def connection_made(self, transport: transports.Transport):
-        redText = "<span style=\" font-size:8pt; font-weight:600; color:#00e600;\" >"
+        redText = "<span style=\" font-weight:600; color:#00e600;\" >"
         redText += "Connected!"
         redText += "</span>"
         self.window.append_text(redText)
@@ -71,7 +71,7 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def connection_lost(self, exception):
-        greenText = "<span style=\" font-size:8pt; font-weight:600; color:#ff0000;\" >"
+        greenText = "<span style=\" font-weight:600; color:#ff0000;\" >"
         greenText += "Disconnected!"
         greenText += "</span>"
         self.window.append_text(greenText)
