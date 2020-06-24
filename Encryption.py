@@ -7,6 +7,7 @@ def encrypt(public_key, message: str) -> list:
     cipher_rsa = PKCS1_OAEP.new(public_key)
     enc_session_key = cipher_rsa.encrypt(session_key)
     cipher_aes = AES.new(session_key, AES.MODE_EAX)
+    print(message)
     cipher_text, tag = cipher_aes.encrypt_and_digest(message.encode("utf-8"))
     message = []
     [message.append(x) for x in (enc_session_key, cipher_aes.nonce, tag, cipher_text)]

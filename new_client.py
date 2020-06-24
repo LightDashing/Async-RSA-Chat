@@ -37,7 +37,7 @@ class ClientProtocol(asyncio.Protocol):
             self.public = RSA.import_key(self.public)
             return
 
-        if pack['state'] == 3 or pack['state'] == 4:
+        if pack['state'] == 3 or pack['state'] == 4 or pack['state'] == 2:
             self.window.append_text(pack['message'])
             return
 
@@ -53,7 +53,10 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def connection_made(self, transport: transports.Transport):
-        self.window.append_text("Connected)")
+        redText = "<span style=\" font-size:11pt; font-weight:600; color:#ff0000;\" >"
+        redText += "Connected!"
+        redText += "</span>"
+        self.window.append_text(redText)
         self.transport = transport
         pack = {'login': self.login, 'password': self.password, 'email': self.email,
                 'public_key': self.keys.publickey().export_key()}
@@ -61,7 +64,7 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def connection_lost(self, exception):
-        self.window.append_text("Disconnected(")
+        self.window.append_text("Disconnected!")
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -156,7 +159,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.protocol.transport.close()
 
     def append_text(self, content: str):
-        self.message_box.appendPlainText(content)
+        self.message_box.append(content)
 
     def save_user(self):
         username = self.username_input.text()

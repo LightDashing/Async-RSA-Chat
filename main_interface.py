@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(583, 659)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        MainWindow.setFixedSize(583, 659)
+        MainWindow.setFixedSize(578, 659)
         self.verticalLayout_2 = QVBoxLayout(self.centralwidget)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.tabWidget = QTabWidget(self.centralwidget)
@@ -234,7 +234,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.disconnect_server_button)
 
-        self.message_box = QPlainTextEdit(self.tab_chat)
+        self.message_box = QTextEdit(self.tab_chat)
         self.message_box.setObjectName(u"message_box")
         self.message_box.setFrameShape(QFrame.StyledPanel)
         self.message_box.setReadOnly(True)

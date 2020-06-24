@@ -58,7 +58,7 @@ class ServerProtocol(asyncio.Protocol):
                     self.server.MainBD.sign_in(pack["login"], pack['password'], pack['email'])
             if not self.server.MainBD.login(pack['login'], pack['password']):
                 message = {'login': 'Server', 'message': 'Wrong combination of login and password \t Change them in'
-                                                         'the settings and reboot to the server!', 'state': 2}
+                                                         'the settings and reconnect to the server!', 'state': 2}
                 message = pickle.dumps(message)
                 self.transport.write(message)
                 self.transport.close()
@@ -87,11 +87,10 @@ class ServerProtocol(asyncio.Protocol):
         print("The user is out now.")
 
     def send_message(self, content: dict, message: str):
-        message = encrypt(self.public_key, message)
-        pack = {'login': content['login'], 'message': message, 'state': 'None'}
-        pack = pickle.dumps(pack)
-
         for user in self.server.clients:
+            msg = encrypt(user.public_key, message)
+            pack = {'login': content['login'], 'message': msg, 'state': 'None'}
+            pack = pickle.dumps(pack)
             user.transport.write(pack)
 
 
@@ -99,11 +98,15 @@ class Server:
     clients: list
 
     def __init__(self):
+        # self.key_pair = RSA.generate(2048)
+        # self.private_key = self.key_pair.export_key()
+        # self.private_key = RSA.import_key(self.private_key)
         self.clients = []
-        self.MainBD = ServerDB()  # TODO: Добавить конфигурацию сервера через JSON
+        self.MainBD = ServerDB()
         self.settings = ServerSettings()
         self.server_settings = self.settings.get_settings()
         self.whitelistmode = self.server_settings['whitelist']
+        self.coroutine = None
 
     def build_protocol(self):
         return ServerProtocol(self)
@@ -128,20 +131,24 @@ class Server:
             elif command.lower() == 'kickall':
                 for user in self.clients:
                     user.transport.close()
+            elif command.lower() == 'close':
+                self.coroutine.close()
+                print('Сервер был остановлен')
+                exit()
 
             command = await ainput()
 
     async def start(self):
         loop = asyncio.get_running_loop()
-        coroutine = await loop.create_server(
+        self.coroutine = await loop.create_server(
             self.build_protocol,
-            '127.0.0.1',
-            8888
+            '192.168.1.35',
+            25332
         )
 
         print("The server is running ...")
 
-        await coroutine.serve_forever()
+        await self.coroutine.serve_forever()
 
 
 process = Server()
