@@ -5,6 +5,7 @@ import asyncio
 import sys
 from asyncio import transports
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PySide2.QtGui import QIcon
 from PySide2 import QtGui, QtWidgets
 from asyncqt import QEventLoop
 from main_interface import Ui_MainWindow
@@ -275,6 +276,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 # dark_stylesheet = qdarkstyle.load_stylesheet_pyside2()
 app = QApplication()
+app.setWindowIcon(QIcon("icon.png"))
 # app.setStyleSheet(dark_stylesheet)
 loop = QEventLoop(app)
 asyncio.set_event_loop(loop)
