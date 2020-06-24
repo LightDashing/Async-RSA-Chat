@@ -21,8 +21,8 @@ class ServerProtocol(asyncio.Protocol):
     def __init__(self, server: 'Server'):
         self.server = server
         # self.ServerSettings = ServerSettings()
-        # servedata = self.ServerSettings.get_settings()
-        # self.whitelistmode = servedata['whitelist']
+        # serverdata = self.ServerSettings.get_settings()
+        # self.whitelistmode = serverdata['whitelist']
         self.key_pair = RSA.generate(2048)
         self.private_key = self.key_pair.export_key()
         self.private_key = RSA.import_key(self.private_key)
@@ -33,7 +33,7 @@ class ServerProtocol(asyncio.Protocol):
             for user in self.server.clients:
                 if user.login == pack['login']:
                     message = {'login': 'Server',
-                               'message': 'На сервере уже есть пользователь с таким ником!',
+                               'message': 'The user with this nickname already exists on the server!',
                                'state': 4}
                     message = pickle.dumps(message)
                     self.transport.write(message)
@@ -41,8 +41,8 @@ class ServerProtocol(asyncio.Protocol):
                     self.server.clients.remove(self)
             if self.server.whitelistmode and not self.server.MainBD.is_user_exist(pack['login']):
                 message = {'login': 'Server',
-                           'message': 'В данный момент действует режим WhiteList! Вы не зарегистрированы на сервере. '
-                                      '\t Дождитесь отключения этого режима!',
+                           'message': 'WhiteList is active now! You are not registered on the server. '
+                                      '\t Wait until this mode is turned off!',
                            'state': 3}
                 message = pickle.dumps(message)
                 self.transport.write(message)
@@ -51,21 +51,21 @@ class ServerProtocol(asyncio.Protocol):
             elif not self.server.whitelistmode:
                 if not self.server.MainBD.is_user_exist(pack['login']):
                     message = {'login': 'Server',
-                               'message': f"Добро пожаловать на сервер, {pack['login']}! \t Зайдя сюда, вы "
-                                          f"автоматически зарегистрировались!", 'state': 1}
+                               'message': f"Welcome to the server, {pack['login']}! \t By entering here, "
+                                          f"you are automatically registered!", 'state': 1}
                     message = pickle.dumps(message)
                     self.transport.write(message)
                     self.server.MainBD.sign_in(pack["login"], pack['password'], pack['email'])
             if not self.server.MainBD.login(pack['login'], pack['password']):
-                message = {'login': 'Server', 'message': 'Неправильное сочетание логина и пароля \t Поменяйте их в '
-                                                         'настройках и перезайдите на сервер!', 'state': 2}
+                message = {'login': 'Server', 'message': 'Wrong combination of login and password \t Change them in'
+                                                         'the settings and reboot to the server!', 'state': 2}
                 message = pickle.dumps(message)
                 self.transport.write(message)
                 self.transport.close()
                 self.server.clients.remove(self)
             self.public_key = pack['public_key']
             self.public_key = RSA.import_key(self.public_key)
-            message = {'login': 'Server', 'message': 'Вы успешно зашли на сервер!',
+            message = {'login': 'Server', 'message': 'You have successfully entered the server!',
                        'public': self.key_pair.publickey().export_key(), 'state': 1}
             message = pickle.dumps(message)
             self.transport.write(message)
@@ -80,11 +80,11 @@ class ServerProtocol(asyncio.Protocol):
     def connection_made(self, transport: transports.Transport):
         self.server.clients.append(self)
         self.transport = transport
-        print("Пришел новый клиент")
+        print("A new user has arrived.")
 
     def connection_lost(self, exception):
         self.server.clients.remove(self)
-        print("Клиент вышел")
+        print("The user is out now.")
 
     def send_message(self, content: dict, message: str):
         message = encrypt(self.public_key, message)
@@ -112,19 +112,19 @@ class Server:
         command = ''
         while True:
             if command.lower() == 'users':
-                print(f'На сервере {len(self.clients)} пользователей')
+                print(f'On the server {len(self.clients)} users now.')
             elif command.lower() == 'list':
                 logins = ''
                 for user in self.clients:
                     logins += f'{user.login} '
-                print('Список пользователей: ', logins)
+                print('Users list: ', logins)
             elif command.lower()[:4] == 'kick':
                 for user in self.clients:
                     if user.login == command[5:]:
                         user.transport.close()
-                        print(f'Пользователь {command[5:]} был исключён')
+                        print(f'User {command[5:]} has been banned.')
                     else:
-                        print(f'Пользователя с ником {command[5:]} не существует!')
+                        print(f'There is no user with a nickname {command[5:]}.')
             elif command.lower() == 'kickall':
                 for user in self.clients:
                     user.transport.close()
@@ -139,7 +139,7 @@ class Server:
             8888
         )
 
-        print("Сервер запущен ...")
+        print("The server is running ...")
 
         await coroutine.serve_forever()
 
@@ -154,4 +154,4 @@ async def main():
 try:
     asyncio.run(main())
 except KeyboardInterrupt:
-    print("Сервер остановлен вручную")
+    print("The server is stopped manually.")

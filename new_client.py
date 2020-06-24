@@ -53,7 +53,7 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def connection_made(self, transport: transports.Transport):
-        self.window.append_text("Подключено")
+        self.window.append_text("Connected)")
         self.transport = transport
         pack = {'login': self.login, 'password': self.password, 'email': self.email,
                 'public_key': self.keys.publickey().export_key()}
@@ -61,7 +61,7 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def connection_lost(self, exception):
-        self.window.append_text("Отключено")
+        self.window.append_text("Disconnected(")
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -122,7 +122,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
             msg.setText("Error")
-            msg.setInformativeText('You need to add server ip and name')
+            msg.setInformativeText('You need to add server IP address and name')
             msg.setWindowTitle("Error")
             msg.exec_()
             return
