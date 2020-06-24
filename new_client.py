@@ -2,10 +2,9 @@
 # Клиентское приложение с интерфейсом
 #
 import asyncio
-import sys
+import sys,time
 from asyncio import transports
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
-from PySide2.QtGui import QIcon
 from PySide2 import QtGui, QtWidgets
 from asyncqt import QEventLoop
 from main_interface import Ui_MainWindow
@@ -13,6 +12,7 @@ from Settings import Settings
 import pickle
 from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt
+from PyQt5.QtGui import QIcon
 
 
 class ClientProtocol(asyncio.Protocol):
@@ -30,6 +30,7 @@ class ClientProtocol(asyncio.Protocol):
         self.login = data['login']
         self.password = data['password']
         self.email = data['email']
+
 
     def data_received(self, data: bytes):
         pack = pickle.loads(data)
@@ -52,7 +53,7 @@ class ClientProtocol(asyncio.Protocol):
         if pack['state'] == 6:
             blue = "<span style=\" font-weight:600; font-style: italic; color: orange;\" >"
             message =  decrypt(self.private, pack['message'])
-            message = f'{pack["login"]}: {message}'
+            message = f'<span style=\" font-weight:600;font-size:11px\" >{time.strftime("%H:%M", time.localtime())}</span> {pack["login"]}: {message}'
             blue += f"{message}</span>"
             self.window.append_text(blue)
             return
@@ -65,7 +66,7 @@ class ClientProtocol(asyncio.Protocol):
             return
 
         message = decrypt(self.private, pack['message'])
-        message = f'{pack["login"]}: {message}'
+        message = f'<span style=\" font-weight:400;font-size:11px\" >{time.strftime("%H:%M", time.localtime())}</span> {pack["login"]}: {message}'
         message = "<span style=\" font-size:13px; color:black;\" >" + message
         self.window.append_text(message)
 
@@ -160,6 +161,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.clean_chat_button.clicked.connect(self.clean_chat)
         self.show()
 
+
     def create_error(self, error: str):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
@@ -177,9 +179,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def make_buttons_active(self):
         self.connect_server_button.setEnabled(True)
         self.delete_server_button.setEnabled(True)
-
+    # def spacestr(str):
     def send_button_handler(self):
         message_text = self.message_input.text()
+        if message_text == "":return
+        count = 0
+        for i in message_text:
+            if i.isspace(): count+=1
+        if count == len(message_text):return
+
         if message_text[:3] == "!pm":
             user_login = message_text[4:message_text.rfind(":")]
             message_text = message_text[message_text.rfind(":") + 1:]
@@ -276,7 +284,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 # dark_stylesheet = qdarkstyle.load_stylesheet_pyside2()
 app = QApplication()
-app.setWindowIcon(QIcon("icon.png"))
+app.setWindowIcon(QtGui.QIcon("icon.png"))
 # app.setStyleSheet(dark_stylesheet)
 loop = QEventLoop(app)
 asyncio.set_event_loop(loop)

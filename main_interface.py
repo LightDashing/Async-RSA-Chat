@@ -128,7 +128,7 @@ class Ui_MainWindow(object):
 
         self.label_logo_image = QLabel(self.groupBox_registration)
         self.label_logo_image.setObjectName(u"label_logo_image")
-        self.label_logo_image.setPixmap(QPixmap(u"logo_image.png"))
+        self.label_logo_image.setPixmap(QPixmap(u"logo.png"))
         self.label_logo_image.setScaledContents(False)
         self.label_logo_image.setAlignment(Qt.AlignCenter)
         self.label_logo_image.setWordWrap(False)
