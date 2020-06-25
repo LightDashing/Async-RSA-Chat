@@ -1,5 +1,5 @@
 QWidget.MainWindow {
-    background: #E8E8E8;
+    background: #0F111A;
     color: #fff;
     padding: 10px;
     border-radius: 5px;
@@ -10,10 +10,6 @@ QPushButton {
     color: #fff;
     padding: 10px;
     border-radius: 5px;
-}
-
-QPushButton.disconnect_server_button {
-    background-color: red;
 }
 
 QPushButton:pressed {
@@ -50,7 +46,7 @@ QTabBar::tab:selected, QTabBar::tab:hover {
 }
 
 QTabBar::tab:selected {
-    border-color: white;
+    border-color: black;
     border-bottom-color: #21316e;
     border-bottom-width: 3px;
     font-weight: bold;
@@ -62,22 +58,25 @@ QTabBar::tab:!selected {
     margin-top: 2px;
 }
 
-
 QLabel {
-    color: black;
+    color: white;
     font-weight: bold;
 }
 
 QLineEdit {
     padding: 8px;
     border-radius: 5px;
+    background-color: #232632;
+    color: white;
 }
 
 QListView {
-    background: white;
+    background: #232632;
     padding: 8px;
     border-radius: 5px;
+    color: white;
 }
+
 QListView::item:selected {
     background: #3d5acb;
     border: 1px solid #6a6ea9;
@@ -88,6 +87,7 @@ QGroupBox {
     border-radius: 5px;
     margin-top: 2.5ex;
     padding-top: 10px;
+    color: white;
 }
 
 QGroupBox::title {
@@ -95,10 +95,24 @@ QGroupBox::title {
     subcontrol-origin: margin;
     padding-left: 10px;
     padding-right: 10px;
+    color: white;
 }
 
 QTextEdit {
-    background: white;
+    background: #232632;
     padding: 8px;
     border-radius: 5px;
+    color: white;
+}
+
+QSpinBox {
+    background-color: #232632;
+    color: white;
+    border: None;
+    border-radius: 5px;
+}
+
+QMessageBox {
+    background-color: #0F111A;
+    color: white;
 }

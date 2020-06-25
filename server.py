@@ -171,8 +171,8 @@ class Server:
         loop = asyncio.get_running_loop()
         self.coroutine = await loop.create_server(
             self.build_protocol,
-            '192.168.1.35',
-            25332
+            '127.0.0.1',
+            8888
         )
 
         print("The server is running ...")

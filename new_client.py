@@ -2,7 +2,7 @@
 # Клиентское приложение с интерфейсом
 #
 import asyncio
-import sys, time
+import sys,time
 from asyncio import transports
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
 from PySide2 import QtGui, QtWidgets
@@ -30,7 +30,7 @@ class ClientProtocol(asyncio.Protocol):
         self.login = data['login']
         self.password = data['password']
         self.email = data['email']
-        self.color = "#800080"
+        self.color = data['color']
 
     def data_received(self, data: bytes):
         pack = pickle.loads(data)
@@ -53,23 +53,23 @@ class ClientProtocol(asyncio.Protocol):
         if pack['state'] == 6:
             blue = ""
             message = decrypt(self.private, pack['message'])
-            message = f'<span style=\" font-weight:400; font-style:normal; color:black ;font-size:11px\" >{time.strftime("%H:%M", time.localtime())}</span> ' \
-                      f'<span style=\"color:{pack["color"]}; font-weight:400; font-style:normal\">  {pack["login"]}: </span>{message} '
-            blue += f"<span style=\" font-weight:600; font-style: italic; color: orange;\" > {message}</span>"
+            message = f'<span style=\" font-weight: 400; font-style: normal; color:white; font-size: 11px;\" >{time.strftime("%H:%M", time.localtime())}</span> ' \
+                      f'<span style=\"color: {pack["color"]}; font-weight: 400; font-style: normal;\">  {pack["login"]}: </span>{message} '
+            blue += f"<span style=\" font-weight: 400; font-style: italic; color: orange;\" > {message}</span>"
             self.window.append_text(blue)
             return
 
         if pack['state'] == 7:
-            yellowtext = "<span style=\" font-weight:600; color:#540099;\" >"
+            yellowtext = "<span style=\" font-weight: 600; color: #540099;\" >"
             yellowtext += decrypt(self.private, pack['message'])
             yellowtext += "</span>"
             self.window.append_text(yellowtext)
             return
 
         message = decrypt(self.private, pack['message'])
-        message = f'<span style=\" font-weight:400;font-size:11px\" >{time.strftime("%H:%M", time.localtime())}</span>' \
-                  f'<span style=\"color:{pack["color"]}\">  {pack["login"]}: </span> {message}'
-        message = "<span style=\" font-size:13px; color:black;\" >" + message
+        message = f'<span style=\" font-weight: 400; color: white; font-size: 11px;\" >{time.strftime("%H:%M", time.localtime())}</span>' \
+                  f'<span style=\"color: {pack["color"]}\">  {pack["login"]}: </span> {message}'
+        message = "<span style=\" font-size: 13px; color: white;\" >" + message
         self.window.append_text(message)
 
     def send_data(self, message: str):
@@ -84,9 +84,9 @@ class ClientProtocol(asyncio.Protocol):
             message = encrypt(self.public, message)
             pack = {"login": self.login, 'email': self.email, 'message': message, 'to': to, 'state': state,
                     'color': self.color}
-            blue = f'<span style=\" font-weight:400;font-size:11px\" >{time.strftime("%H:%M", time.localtime())}</span>'
-            blue += f'<span style=\"color:{pack["color"]}\">  {pack["login"]}: </span> <span style=\"' \
-                    f'font-weight:600; font-style: italic; color: orange;\" > {msg}</span> '
+            blue = f'<span style=\"font-weight: 400; font-size: 11px;\" >{time.strftime("%H:%M", time.localtime())}</span>'
+            blue += f'<span style=\"color: {pack["color"]}\"> {pack["login"]}: </span> <span style=\"' \
+                    f'font-weight: 400; font-style: italic; color: orange;\" > {msg}</span>'
             self.window.append_text(blue)
             pack = pickle.dumps(pack)
         else:
@@ -96,7 +96,7 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def connection_made(self, transport: transports.Transport):
-        redText = "<span style=\" font-weight:600; color:#00e600;\" >"
+        redText = "<span style=\" font-weight: 600; color: #00e600;\" >"
         redText += "Connected!"
         redText += "</span>"
         self.window.append_text(redText)
@@ -107,7 +107,7 @@ class ClientProtocol(asyncio.Protocol):
         self.transport.write(pack)
 
     def connection_lost(self, exception):
-        greenText = "<span style=\" font-weight:600; color:#ff0000;\" >"
+        greenText = "<span style=\" font-weight: 600; color: #ff0000;\" >"
         greenText += "Disconnected!"
         greenText += "</span>"
         self.window.running = False
@@ -133,13 +133,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
-        self.setStyleSheet(open('./style.css').read())
+        # self.setStyleSheet(open('./style.css').read())
+        self.setStyleSheet(open('./dark_theme.css').read())
 
         self.settings = Settings()
         self.user_settings = self.settings.get_settings()
         self.username_input.setText(self.user_settings['login'])
         self.password_input.setText(self.user_settings['password'])
         self.email_input.setText(self.user_settings['email'])
+        self.color_input.setText(self.user_settings['color'])
         self.user_settings = self.settings.get_settings()
         self.ip = None
         self.port = None
@@ -167,6 +169,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.clean_chat_button.clicked.connect(self.clean_chat)
         self.show()
 
+
     def create_error(self, error: str):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
@@ -188,11 +191,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     # def spacestr(str):
     def send_button_handler(self):
         message_text = self.message_input.text()
-        if message_text == "": return
+        if message_text == "":
+            return
         count = 0
         for i in message_text:
-            if i.isspace(): count += 1
-        if count == len(message_text): return
+            if i.isspace():
+                count+=1
+        if count == len(message_text):
+            return
 
         if message_text[:3] == "!pm":
             user_login = message_text[4:message_text.rfind(":")]
@@ -260,12 +266,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         username = self.username_input.text()
         password = self.password_input.text()
         email = self.email_input.text()
+        color = self.color_input.text()
         if not username or not password or not email:
             self.create_error('all fields must not be empty')
             return
         self.user_settings['login'] = username
         self.user_settings['password'] = password
         self.user_settings['email'] = email
+        self.user_settings['color'] = color
         self.settings.set_settings(self.user_settings)
 
     def build_protocol(self):
@@ -290,8 +298,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 # dark_stylesheet = qdarkstyle.load_stylesheet_pyside2()
 app = QApplication()
-app.setWindowIcon(QtGui.QIcon("icon.png"))
-# app.setStyleSheet(dark_stylesheet)
+app.setWindowIcon(QIcon("icon.png"))
+# app.setStyleSheet("dark_theme.css")
 loop = QEventLoop(app)
 asyncio.set_event_loop(loop)
 

@@ -44,9 +44,9 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabsClosable(False)
         self.tabWidget.setMovable(False)
         self.tabWidget.setTabBarAutoHide(False)
+
         self.tab_user = QWidget()
         self.tab_user.setObjectName(u"tab_user")
-        self.tab_user.setStyleSheet(u"")
         self.verticalLayout_4 = QVBoxLayout(self.tab_user)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.groupBox_registration = QGroupBox(self.tab_user)
@@ -99,10 +99,24 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(2, QFormLayout.FieldRole, self.email_input)
 
+        self.label_color = QLabel(self.groupBox_registration)
+        self.label_color.setObjectName(u"label_color")
+        self.label_color.setTextFormat(Qt.AutoText)
+        self.label_color.setScaledContents(False)
+        self.label_color.setWordWrap(False)
+
+        self.formLayout.setWidget(3, QFormLayout.LabelRole, self.label_color)
+
+        self.color_input = QLineEdit(self.groupBox_registration)
+        self.color_input.setObjectName(u"color_input")
+        self.color_input.setClearButtonEnabled(True)
+
+        self.formLayout.setWidget(3, QFormLayout.FieldRole, self.color_input)
+
         self.save_user_button = QPushButton(self.groupBox_registration)
         self.save_user_button.setObjectName(u"save_user_button")
 
-        self.formLayout.setWidget(3, QFormLayout.SpanningRole, self.save_user_button)
+        self.formLayout.setWidget(4, QFormLayout.SpanningRole, self.save_user_button)
 
 
         self.verticalLayout_5.addLayout(self.formLayout)
@@ -128,19 +142,19 @@ class Ui_MainWindow(object):
 
         self.label_logo_image = QLabel(self.groupBox_registration)
         self.label_logo_image.setObjectName(u"label_logo_image")
-        self.label_logo_image.setPixmap(QPixmap(u"logo.png"))
+        self.label_logo_image.setPixmap(QPixmap(u"logo_image.png"))
         self.label_logo_image.setScaledContents(False)
         self.label_logo_image.setAlignment(Qt.AlignCenter)
         self.label_logo_image.setWordWrap(False)
         self.label_logo_image.setOpenExternalLinks(False)
 
-        self.formLayout.setWidget(5, QFormLayout.SpanningRole, self.label_logo_image)
+        self.formLayout.setWidget(6, QFormLayout.SpanningRole, self.label_logo_image)
 
         self.verticalSpacer = QSpacerItem(20, 110, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.formLayout.setItem(4, QFormLayout.SpanningRole, self.verticalSpacer)
+        self.formLayout.setItem(5, QFormLayout.SpanningRole, self.verticalSpacer)
 
         self.verticalSpacer = QSpacerItem(20, 120, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.formLayout.setItem(6, QFormLayout.SpanningRole, self.verticalSpacer)
+        self.formLayout.setItem(7, QFormLayout.SpanningRole, self.verticalSpacer)
 
         self.formLayout_2.setWidget(0, QFormLayout.LabelRole, self.label_server)
 
@@ -281,13 +295,14 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"RSA Chat", None))
         self.groupBox_registration.setTitle(QCoreApplication.translate("MainWindow", u"User registration", None))
-        self.label_username.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:10pt; font-weight:600;\">Username</span></p></body></html>", None))
+        self.label_username.setText(QCoreApplication.translate("MainWindow", u"Username", None))
         self.username_input.setText("")
-        self.username_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Username", None))
-        self.label_password.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:10pt; font-weight:600;\">Password</span></p></body></html>", None))
-        self.password_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Password (at least 6 characters)", None))
-        self.label_email.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:10pt; font-weight:600;\">E-mail</span></p></body></html>", None))
-        self.email_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"E-mail", None))
+        # self.username_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Username", None))
+        self.label_password.setText(QCoreApplication.translate("MainWindow", u"Password", None))
+        # self.password_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Password (at least 6 characters)", None))
+        self.label_email.setText(QCoreApplication.translate("MainWindow", u"E-mail", None))
+        # self.email_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"E-mail", None))
+        self.label_color.setText(QCoreApplication.translate("MainWindow", u"Color", None))
         self.save_user_button.setText(QCoreApplication.translate("MainWindow", u"Save", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_user), QCoreApplication.translate("MainWindow", u"User", None))
         self.groupBox_addserver.setTitle(QCoreApplication.translate("MainWindow", u"New server", None))
