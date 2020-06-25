@@ -11,7 +11,7 @@ class Settings:
 
     def create_settings(self):
         with open(self.settings_file, 'w') as file:
-            settings = {'login': username, 'password': password, 'email': email, 'color': color, 'servers': ''}
+            settings = {'login': username, 'password': password, 'email': email, 'color': color,'app_theme': app_theme,'font':font,'font_size':font_size, 'servers': ''}
             json.dump(settings, file)
 
     def get_settings(self) -> dict:

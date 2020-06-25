@@ -1,1 +1,8 @@
-{"login": "AleksZUK", "password": "qwerty1234", "email": "aleks@zuk.com", "color": "yellow", "app_theme": "dark", "servers": {"localhost": {"ip": "127.0.0.1", "port": "8888"}, "Light": {"ip": "46.72.61.65", "port": "25332"}}}
+{"login": "Hugrid",
+  "password": "Hugrid",
+  "email": "Hugrid@Hugrid.Hugrid",
+  "color": "orange",
+  "app_theme": "light",
+  "font": "normal",
+  "font-size": "11px",
+  "servers": {"localhost": {"ip": "127.0.0.1", "port": "8888"}, "Light": {"ip": "46.72.61.65", "port": "25332"}}}

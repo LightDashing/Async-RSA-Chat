@@ -15,6 +15,11 @@ from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
 from Settings import Settings
 from asyncqt import QEventLoop
 from main_interface import Ui_MainWindow
+from Settings import Settings
+import pickle
+from Crypto.PublicKey import RSA
+from Encryption import encrypt, decrypt
+from PyQt5.QtGui import QIcon
 
 
 class ClientProtocol(asyncio.Protocol):
@@ -46,7 +51,7 @@ class ClientProtocol(asyncio.Protocol):
             self.window.append_text(pack['message'])
             return
         if pack['state'] == 5:
-            yellowtext = "<span style=\" font-weight:600; color:#540099;\" >"
+            yellowtext = f'<span style=\" font-weight:600;font-size:{pack["font_size"]}; color:#540099;\" >'
             yellowtext += decrypt(self.private, pack['message'])
             yellowtext += "</span>"
             self.window.append_text(yellowtext)
@@ -55,9 +60,9 @@ class ClientProtocol(asyncio.Protocol):
         if pack['state'] == 6:
             blue = ""
             message = decrypt(self.private, pack['message'])
-            message = f'<span style=\" font-weight: 400; font-style: normal; color:white; font-size: 11px;\" >{time.strftime("%H:%M", time.localtime())}</span> ' \
-                      f'<span style=\"color: {pack["color"]}; font-weight: 400; font-style: normal;\">  {pack["login"]}: </span>{message} '
-            blue += f"<span style=\" font-weight: 400; font-style: italic; color: orange;\" > {message}</span>"
+            message = f'<span style=\" font-weight: 400; font-style: {pack["font"]}; color:white; font-size: {pack["font_size"]};\" >{time.strftime("%H:%M", time.localtime())}</span> ' \
+                      f'<span style=\"color: {pack["color"]}; font-weight: 400; font-style: {pack["font"]};\">  {pack["login"]}: </span>{message} '
+            blue += f'<span style=\" font-weight: 400;font-size: {pack["font_size"]}; font-style: italic; color: orange;\" > {message}</span>'
             self.window.append_text(blue)
             return
 
@@ -69,9 +74,9 @@ class ClientProtocol(asyncio.Protocol):
             return
 
         message = decrypt(self.private, pack['message'])
-        message = f'<span style=\" font-weight: 400; color: white; font-size: 11px;\" >{time.strftime("%H:%M", time.localtime())}</span>' \
+        message = f'<span style=\" font-weight: 400; color: white; font-size: {pack["font_size"]};\" >{time.strftime("%H:%M", time.localtime())}</span>' \
                   f'<span style=\"color: {pack["color"]}\">  {pack["login"]}: </span> {message}'
-        message = "<span style=\" font-size: 13px; color: white;\" >" + message
+        message = f'<span style=\" font-size: {pack["font_size"]}+2px; color: white;\" >' + message
         self.window.append_text(message)
 
     def send_data(self, message: str):
@@ -86,7 +91,7 @@ class ClientProtocol(asyncio.Protocol):
             message = encrypt(self.public, message)
             pack = {"login": self.login, 'email': self.email, 'message': message, 'to': to, 'state': state,
                     'color': self.color}
-            blue = f'<span style=\"font-weight: 400; font-size: 11px;\" >{time.strftime("%H:%M", time.localtime())}</span>'
+            blue = f'<span style=\"font-weight: 400; font-size: {pack["font_size"]};\" >{time.strftime("%H:%M", time.localtime())}</span>'
             blue += f'<span style=\"color: {pack["color"]}\"> {pack["login"]}: </span> <span style=\"' \
                     f'font-weight: 400; font-style: italic; color: orange;\" > {msg}</span>'
             self.window.append_text(blue)
@@ -142,14 +147,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.username_input.setText(self.user_settings['login'])
         self.password_input.setText(self.user_settings['password'])
         self.email_input.setText(self.user_settings['email'])
-        self.color_input.setText(self.user_settings['color'])
-        self.user_settings = self.settings.get_settings()
+        ### settings tab###
+        # self.color_input.setText(self.user_settings['color'])
+        # self.font_input.setText(self.user_settings['font'])
+        # self.font_size_input.setText(self.user_settings['font_size'])
+        # self.theme_input.setText(self.user_settings['app_theme'])
+        # self.color_input.setText(self.user_settings['color'])
+        ###
+        self.theme = f"./{self.user_settings['app_theme']}_theme.css"
+        self.setStyleSheet(open(self.theme).read())
+
         self.ip = None
         self.port = None
         self.running = False
-
-        self.theme = f"./{self.user_settings['app_theme']}_theme.css"
-        self.setStyleSheet(open(self.theme).read())
 
         self.s_list_model = QtGui.QStandardItemModel()
         self.server_list.setModel(self.s_list_model)
@@ -174,6 +184,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.theme_button.clicked.connect(self.theme_changer)
         self.show()
 
+    def save_settings(self):
+        font = self.font_input.text()
+        font_size = self.font_size_input.text()
+        theme = self.theme_input().text()
+        color = self.color_input.text()
+        if not font or not font_size or not color or not theme:
+            self.create_error('All fields must not be empty.')
+            return
+        self.user_settings['font'] = font
+        self.user_settings['font_size'] = font_size
+        self.user_settings['app_theme'] = theme
+        self.user_settings['color'] = color
+        self.settings.set_settings(self.user_settings)
     def theme_changer(self):
         if self.user_settings['app_theme'] == 'light':
             self.user_settings['app_theme'] = 'dark'
@@ -313,7 +336,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 # dark_stylesheet = qdarkstyle.load_stylesheet_pyside2()
 app = QApplication()
-app.setWindowIcon(QIcon("icon.png"))
+app.setWindowIcon(QtGui.QIcon("logo.png"))
 # app.setStyleSheet("dark_theme.css")
 loop = QEventLoop(app)
 asyncio.set_event_loop(loop)
