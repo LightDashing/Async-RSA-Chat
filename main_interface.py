@@ -118,11 +118,36 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(4, QFormLayout.SpanningRole, self.save_user_button)
 
-
         self.verticalLayout_5.addLayout(self.formLayout)
 
 
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalLayout_5.addItem(self.verticalSpacer)
+
+        self.label_logo_image = QLabel(self.groupBox_registration)
+        self.label_logo_image.setObjectName(u"label_logo_image")
+        self.label_logo_image.setPixmap(QPixmap(u"logo_image.png"))
+        self.label_logo_image.setScaledContents(False)
+        self.label_logo_image.setAlignment(Qt.AlignCenter)
+        self.label_logo_image.setWordWrap(False)
+        self.label_logo_image.setOpenExternalLinks(False)
+
+        self.verticalLayout_5.addWidget(self.label_logo_image)
+
         self.verticalLayout_4.addWidget(self.groupBox_registration)
+
+        self.groupBox_app_settings = QGroupBox(self.tab_user)
+        self.groupBox_app_settings.setObjectName(u"groupBox_app_settings")
+        self.verticalLayout_8 = QVBoxLayout(self.groupBox_app_settings)
+        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
+
+        self.theme_button = QPushButton(self.groupBox_app_settings)
+        self.theme_button.setObjectName(u"theme_button")
+
+        self.verticalLayout_8.addWidget(self.theme_button)
+
+        self.verticalLayout_4.addWidget(self.groupBox_app_settings)
+
 
         self.tabWidget.addTab(self.tab_user, "")
         self.tab_servers = QWidget()
@@ -139,22 +164,6 @@ class Ui_MainWindow(object):
         self.formLayout_2.setObjectName(u"formLayout_2")
         self.label_server = QLabel(self.groupBox_addserver)
         self.label_server.setObjectName(u"label_server")
-
-        self.label_logo_image = QLabel(self.groupBox_registration)
-        self.label_logo_image.setObjectName(u"label_logo_image")
-        self.label_logo_image.setPixmap(QPixmap(u"logo_image.png"))
-        self.label_logo_image.setScaledContents(False)
-        self.label_logo_image.setAlignment(Qt.AlignCenter)
-        self.label_logo_image.setWordWrap(False)
-        self.label_logo_image.setOpenExternalLinks(False)
-
-        self.formLayout.setWidget(6, QFormLayout.SpanningRole, self.label_logo_image)
-
-        self.verticalSpacer = QSpacerItem(20, 110, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.formLayout.setItem(5, QFormLayout.SpanningRole, self.verticalSpacer)
-
-        self.verticalSpacer = QSpacerItem(20, 120, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.formLayout.setItem(7, QFormLayout.SpanningRole, self.verticalSpacer)
 
         self.formLayout_2.setWidget(0, QFormLayout.LabelRole, self.label_server)
 
@@ -304,6 +313,8 @@ class Ui_MainWindow(object):
         # self.email_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"E-mail", None))
         self.label_color.setText(QCoreApplication.translate("MainWindow", u"Color", None))
         self.save_user_button.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+        self.groupBox_app_settings.setTitle(QCoreApplication.translate("MainWindow", u"App settings", None))
+        self.theme_button.setText(QCoreApplication.translate("MainWindow", u"Dark theme", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_user), QCoreApplication.translate("MainWindow", u"User", None))
         self.groupBox_addserver.setTitle(QCoreApplication.translate("MainWindow", u"New server", None))
         self.label_server.setText(QCoreApplication.translate("MainWindow", u"Server's name", None))

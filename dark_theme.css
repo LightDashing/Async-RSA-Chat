@@ -116,3 +116,7 @@ QMessageBox {
     background-color: #0F111A;
     color: white;
 }
+
+QCheckBox {
+    color: white;
+}

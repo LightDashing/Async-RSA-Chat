@@ -2,17 +2,19 @@
 # Клиентское приложение с интерфейсом
 #
 import asyncio
-import sys,time
-from asyncio import transports
-from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
-from PySide2 import QtGui, QtWidgets
-from asyncqt import QEventLoop
-from main_interface import Ui_MainWindow
-from Settings import Settings
 import pickle
+import sys
+import time
+from asyncio import transports
+
 from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt
+from PySide2 import QtGui, QtWidgets
 from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
+from Settings import Settings
+from asyncqt import QEventLoop
+from main_interface import Ui_MainWindow
 
 
 class ClientProtocol(asyncio.Protocol):
@@ -134,7 +136,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         # self.setStyleSheet(open('./style.css').read())
-        self.setStyleSheet(open('./dark_theme.css').read())
 
         self.settings = Settings()
         self.user_settings = self.settings.get_settings()
@@ -146,6 +147,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ip = None
         self.port = None
         self.running = False
+
+        self.theme = f"./{self.user_settings['app_theme']}_theme.css"
+        self.setStyleSheet(open(self.theme).read())
 
         self.s_list_model = QtGui.QStandardItemModel()
         self.server_list.setModel(self.s_list_model)
@@ -167,8 +171,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.add_server_button.clicked.connect(self.add_server)
         self.reconnect_server_button.clicked.connect(self.reconnect)
         self.clean_chat_button.clicked.connect(self.clean_chat)
+        self.theme_button.clicked.connect(self.theme_changer)
         self.show()
 
+    def theme_changer(self):
+        if self.user_settings['app_theme'] == 'light':
+            self.user_settings['app_theme'] = 'dark'
+        else:
+            self.user_settings['app_theme'] = 'light'
+        self.settings.set_settings(self.user_settings)
+        self.theme = f"./{self.user_settings['app_theme']}_theme.css"
+        self.setStyleSheet(open(self.theme).read())
+        self.update()
 
     def create_error(self, error: str):
         msg = QMessageBox()
@@ -196,7 +210,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         count = 0
         for i in message_text:
             if i.isspace():
-                count+=1
+                count += 1
         if count == len(message_text):
             return
 
@@ -267,8 +281,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         password = self.password_input.text()
         email = self.email_input.text()
         color = self.color_input.text()
+        theme = self.app_theme()
         if not username or not password or not email:
-            self.create_error('all fields must not be empty')
+            self.create_error('All fields must not be empty.')
             return
         self.user_settings['login'] = username
         self.user_settings['password'] = password
