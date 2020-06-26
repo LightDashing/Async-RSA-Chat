@@ -279,15 +279,24 @@ class Ui_MainWindow(object):
 
         self.gridLayout_2.addWidget(self.message_input, 2, 0, 1, 3)
 
+        self.send_file_button = QPushButton(self.tab_chat)
+        self.send_file_button.setObjectName(u"send_file_button")
+
+        self.gridLayout_2.addWidget(self.send_file_button, 3, 2, 1, 1)
+
         self.send_message_button = QPushButton(self.tab_chat)
         self.send_message_button.setObjectName(u"send_message_button")
 
-        self.gridLayout_2.addWidget(self.send_message_button, 3, 0, 1, 3)
+        self.gridLayout_2.addWidget(self.send_message_button, 3, 0, 1, 2)
 
 
         self.verticalLayout_3.addLayout(self.gridLayout_2)
 
         self.tabWidget.addTab(self.tab_chat, "")
+
+        self.tab_settings = QWidget()
+        self.tab_settings.setObjectName(u"tab_settings")
+        self.tabWidget.addTab(self.tab_settings, "")
 
         self.verticalLayout_2.addWidget(self.tabWidget)
 
@@ -341,8 +350,11 @@ class Ui_MainWindow(object):
         self.disconnect_server_button.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
         self.reconnect_server_button.setText(QCoreApplication.translate("MainWindow", u"Reconnect", None))
         self.clean_chat_button.setText(QCoreApplication.translate("MainWindow", u"Clean", None))
+        self.send_file_button.setText(QCoreApplication.translate("MainWindow", u"File", None))
         self.send_message_button.setText(QCoreApplication.translate("MainWindow", u"Send", None))
     #if QT_CONFIG(shortcut)
         self.send_message_button.setShortcut(QCoreApplication.translate("MainWindow", u"Return", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_settings),
+                                  QCoreApplication.translate("MainWindow", u"Settings", None))
     # retranslateUi
 

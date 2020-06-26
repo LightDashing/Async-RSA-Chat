@@ -8,8 +8,9 @@ from aioconsole import ainput
 import pickle
 from DataBase import ServerDB
 from Crypto.PublicKey import RSA
-from Encryption import encrypt, decrypt
-
+from Encryption import encrypt, decrypt, encrypt_bytes, decrypt_bytes
+from cache import get_bytes, save_bytes
+import uuid
 
 class ServerProtocol(asyncio.Protocol):
     login: str = None
@@ -68,7 +69,7 @@ class ServerProtocol(asyncio.Protocol):
             self.transport.write(message)
             self.logged_in = True
             self.login = pack['login']
-            pack = {'login': ''}
+            pack = {'login': '', 'color': None}
             message = f'User {self.login} is connected!'
             self.send_message(pack, message, 5)
             return
@@ -79,6 +80,13 @@ class ServerProtocol(asyncio.Protocol):
             return
         elif pack['state'] == 3:
             self.send_pm(state=7)
+            return
+        elif pack['state'] == 4:
+            file = decrypt_bytes(self.private_key, pack['attach'])
+            filename = str(uuid.uuid4())
+            save_bytes(b=file, file=f'{filename}.{pack["ext"]}')
+            pack['attach'] = file
+            self.send_message(pack, message, attach=True)
             return
         print(message)
         self.send_message(pack, message)
@@ -98,10 +106,14 @@ class ServerProtocol(asyncio.Protocol):
                 self.server.clients.remove(user)
         print("The user is out now.")
 
-    def send_message(self, content: dict, message: str, state: int = None):
+    def send_message(self, content: dict, message: str, state: int = None, attach=False):
         for user in self.server.clients:
             msg = encrypt(user.public_key, message)
             pack = {'login': content['login'], 'message': msg, 'state': state, 'color': content['color']}
+            if attach:
+                pack['attach'] = encrypt_bytes(self.public_key, content['attach'])
+                pack['ext'] = content['ext']
+                pack['state'] = 8
             pack = pickle.dumps(pack)
             user.transport.write(pack)
 
@@ -171,8 +183,8 @@ class Server:
         loop = asyncio.get_running_loop()
         self.coroutine = await loop.create_server(
             self.build_protocol,
-            '127.0.0.1',
-            8888
+            '192.168.1.35',
+            25332
         )
 
         print("The server is running ...")
