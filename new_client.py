@@ -6,6 +6,7 @@ import pickle
 import sys
 import time
 from asyncio import transports
+import os
 
 from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt
@@ -22,6 +23,7 @@ from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt, encrypt_bytes, decrypt_bytes
 from PySide2.QtGui import QIcon
 import uuid
+import hashlib
 
 
 class ClientProtocol(asyncio.Protocol):
@@ -41,10 +43,19 @@ class ClientProtocol(asyncio.Protocol):
         self.email = self.settings['email']
         self.color = self.settings['color']
         self.file_to_send = None
+        self.data = []
 
     def data_received(self, data: bytes):
-        pack = pickle.loads(data)
-
+        filename = None
+        try:
+            pack = pickle.loads(data)
+        except Exception:
+            self.data.append(data)
+            try:
+                pack = pickle.loads(b''.join(self.data))
+                self.data.clear()
+            except Exception:
+                return
         if pack['state'] == 1:
             self.public = pack['public']
             self.public = RSA.import_key(self.public)
@@ -83,15 +94,18 @@ class ClientProtocol(asyncio.Protocol):
             file = decrypt_bytes(self.private, pack['attach'])
             filename = str(uuid.uuid4())
             save_bytes(b=file, file=f'{filename}.{pack["ext"]}')
-            print(f'{time.localtime()}.{pack["ext"]}')
+            filename = f'file:///{os.getcwd()}/cache/{filename}.{pack["ext"]}'
 
         message = decrypt(self.private, pack['message'])
         message = f'<span style=\" font-weight: 400; color: white; font-size: {self.settings["font-size"]};\" >{time.strftime("%H:%M", time.localtime())}</span>' \
                   f'<span style=\"color: {self.settings["color"]}\">  {self.settings["login"]}: </span> {message}'
         message = f'<span style=\" font-size: {self.settings["font-size"]}+2px; color: white;\" >' + message
+        if filename is not None:
+            message = message + f' --> <a href="">file</a> '
+            # TODO: Сделать ссылку на файл картинкой
         self.window.append_text(message)
 
-    def send_data(self, message: str, state=None):
+    async def send_data(self, message: str, state=None):
         message = encrypt(self.public, message)
         pack = {'login': self.login, 'email': self.email, 'message': message, 'state': state, 'color': self.color}
         self.send_file(pack)
@@ -283,7 +297,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
 
         self.message_input.clear()
-        self.protocol.send_data(message_text)
+        loop = asyncio.get_running_loop()
+        loop.create_task(self.protocol.send_data(message_text))
 
     def add_server(self):
         name = self.ip_servername.text()

@@ -267,7 +267,7 @@ class Ui_MainWindow(object):
 
         self.gridLayout_2.addWidget(self.clean_chat_button, 0, 2, 1, 1)
 
-        self.message_box = QTextEdit(self.tab_chat)
+        self.message_box = QTextBrowser(self.tab_chat)
         self.message_box.setObjectName(u"message_box")
         self.message_box.setFrameShape(QFrame.StyledPanel)
         self.message_box.setReadOnly(True)

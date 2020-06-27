@@ -12,6 +12,7 @@ from Encryption import encrypt, decrypt, encrypt_bytes, decrypt_bytes
 from cache import get_bytes, save_bytes
 import uuid
 
+
 class ServerProtocol(asyncio.Protocol):
     login: str = None
     logged_in = False
@@ -24,9 +25,20 @@ class ServerProtocol(asyncio.Protocol):
         self.key_pair = RSA.generate(2048)
         self.private_key = self.key_pair.export_key()
         self.private_key = RSA.import_key(self.private_key)
+        self.data = []
 
-    def data_received(self, data: bytes):
-        pack = pickle.loads(data)
+    def data_received(self, data: bytes) -> None:
+        try:
+            pack = pickle.loads(data)
+        except Exception:
+            self.data.append(data)
+            try:
+                pack = pickle.loads(b''.join(self.data))
+                self.data.clear()
+                print('SUCCES')
+            except Exception:
+                print('FAILURE')
+                return
         if not self.logged_in:
             for user in self.server.clients:
                 if user.login == pack['login']:
@@ -73,7 +85,6 @@ class ServerProtocol(asyncio.Protocol):
             message = f'User {self.login} is connected!'
             self.send_message(pack, message, 5)
             return
-
         message = decrypt(self.private_key, pack['message'])
         if pack['state'] == 2:
             self.send_pm(pack, message, pack['to'])
@@ -84,7 +95,7 @@ class ServerProtocol(asyncio.Protocol):
         elif pack['state'] == 4:
             file = decrypt_bytes(self.private_key, pack['attach'])
             filename = str(uuid.uuid4())
-            save_bytes(b=file, file=f'{filename}.{pack["ext"]}')
+           # save_bytes(b=file, file=f'{filename}.{pack["ext"]}')
             pack['attach'] = file
             self.send_message(pack, message, attach=True)
             return
