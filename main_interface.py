@@ -271,6 +271,9 @@ class Ui_MainWindow(object):
         self.message_box.setObjectName(u"message_box")
         self.message_box.setFrameShape(QFrame.StyledPanel)
         self.message_box.setReadOnly(True)
+        self.message_box.setOpenExternalLinks(False)
+        self.message_box.setOpenLinks(False)
+        self.message_box.setAcceptRichText(True)
 
         self.gridLayout_2.addWidget(self.message_box, 1, 0, 1, 3)
 

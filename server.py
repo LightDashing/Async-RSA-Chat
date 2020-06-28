@@ -30,14 +30,14 @@ class ServerProtocol(asyncio.Protocol):
     def data_received(self, data: bytes) -> None:
         try:
             pack = pickle.loads(data)
+            if type(pack) != dict:
+                raise Exception
         except Exception:
             self.data.append(data)
             try:
                 pack = pickle.loads(b''.join(self.data))
                 self.data.clear()
-                print('SUCCES')
-            except Exception:
-                print('FAILURE')
+            except pickle.UnpicklingError:
                 return
         if not self.logged_in:
             for user in self.server.clients:
@@ -94,10 +94,15 @@ class ServerProtocol(asyncio.Protocol):
             return
         elif pack['state'] == 4:
             file = decrypt_bytes(self.private_key, pack['attach'])
-            filename = str(uuid.uuid4())
+           # filename = str(uuid.uuid4())
            # save_bytes(b=file, file=f'{filename}.{pack["ext"]}')
             pack['attach'] = file
             self.send_message(pack, message, attach=True)
+            return
+        elif pack['state'] == 6:
+            file = decrypt_bytes(self.private_key, pack['attach'])
+            pack['attach'] = file
+            self.send_pm(pack, message, pack['to'], 14)
             return
         print(message)
         self.send_message(pack, message)
@@ -123,7 +128,7 @@ class ServerProtocol(asyncio.Protocol):
             pack = {'login': content['login'], 'message': msg, 'state': state, 'color': content['color']}
             if attach:
                 pack['attach'] = encrypt_bytes(self.public_key, content['attach'])
-                pack['ext'] = content['ext']
+                pack['fname'] = content['fname']
                 pack['state'] = 8
             pack = pickle.dumps(pack)
             user.transport.write(pack)
@@ -142,6 +147,10 @@ class ServerProtocol(asyncio.Protocol):
             if user.login == to:
                 msg = encrypt(user.public_key, message)
                 pack = {'login': content['login'], 'message': msg, 'state': state, 'color': content['color']}
+                if state == 14:
+                    pack['attach'] = encrypt_bytes(self.public_key, content['attach'])
+                    pack['fname'] = content['fname']
+                    pack['state'] = 14
                 pack = pickle.dumps(pack)
                 user.transport.write(pack)
                 return

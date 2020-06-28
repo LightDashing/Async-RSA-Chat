@@ -12,7 +12,8 @@ from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt
 from cache import get_bytes, save_bytes
 from PySide2 import QtGui, QtWidgets
-from PySide2.QtGui import QIcon
+from PySide2.QtCore import QUrl
+from PySide2.QtGui import QIcon, QDesktopServices
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog
 from Settings import Settings
 from asyncqt import QEventLoop
@@ -44,17 +45,24 @@ class ClientProtocol(asyncio.Protocol):
         self.color = self.settings['color']
         self.file_to_send = None
         self.data = []
+        self.start_time = None
 
     def data_received(self, data: bytes):
-        filename = None
+        filepath = None
+        ext = None
+        images = ['.png', '.jpg', '.gif']
+
         try:
             pack = pickle.loads(data)
+            if type(pack) != dict:
+                raise Exception
         except Exception:
             self.data.append(data)
             try:
                 pack = pickle.loads(b''.join(self.data))
                 self.data.clear()
-            except Exception:
+                print(f'Total time to send 100mb file is: {time.time() - self.start_time}')
+            except pickle.UnpicklingError:
                 return
         if pack['state'] == 1:
             self.public = pack['public']
@@ -74,7 +82,7 @@ class ClientProtocol(asyncio.Protocol):
         if pack['state'] == 6:
             blue = ""
             message = decrypt(self.private, pack['message'])
-            message = f'<span style=\" font-weight: 400; font-style: normal; color:white; font-size: ' \
+            message = f'<span style=\" font-weight: 400; font-style: normal; color:{self.window.text_color}; font-size: ' \
                       f'{self.settings["font-size"]};\" >{time.strftime("%H:%M", time.localtime())}</span> ' \
                       f'<span style=\"color: {pack["color"]}; font-weight: 400; font-style: ' \
                       f'{self.settings["font"]};\">  {pack["login"]}: </span>{message} '
@@ -92,16 +100,43 @@ class ClientProtocol(asyncio.Protocol):
 
         if pack['state'] == 8:
             file = decrypt_bytes(self.private, pack['attach'])
-            filename = str(uuid.uuid4())
-            save_bytes(b=file, file=f'{filename}.{pack["ext"]}')
-            filename = f'file:///{os.getcwd()}/cache/{filename}.{pack["ext"]}'
+            ext = pack["fname"][pack["fname"].rfind("."):]
+            if ext in images:
+                pack["fname"] = f'{str(uuid.uuid4())}{ext}'
+            save_bytes(b=file, file=pack["fname"])
+            filepath = f'{os.getcwd()}/cache/{pack["fname"]}'
+
+        if pack['state'] == 14:
+            blue = ""
+            message = decrypt(self.private, pack['message'])
+            message = f'<span style=\" font-weight: 400; font-style: normal; color:{self.window.text_color}; font-size: ' \
+                      f'{self.settings["font-size"]};\" >{time.strftime("%H:%M", time.localtime())}</span> ' \
+                      f'<span style=\"color: {pack["color"]}; font-weight: 400; font-style: ' \
+                      f'{self.settings["font"]};\">  {pack["login"]}: </span>{message} '
+            blue += f'<span style=\" font-weight: 400;font-size: {self.settings["font-size"]}; ' \
+                    f'font-style: italic; color: orange;\" > {message}</span>'
+            file = decrypt_bytes(self.private, pack['attach'])
+            ext = pack["fname"][pack["fname"].rfind("."):]
+            filepath = f'{os.getcwd()}/cache/{pack["fname"]}'
+            if ext in images:
+                pack["fname"] = f'{str(uuid.uuid4())}{ext}'
+                filepath = f'{os.getcwd()}/cache/{pack["fname"]}'
+                blue += f'<br> <a href="{filepath}"><img src="{filepath}" width="200" style="position: absolute; top: 0px; right: 0px;"></a><br>'
+            else:
+                blue += f' ||| <a href="{filepath}">{pack["fname"]}</a>'
+            save_bytes(b=file, file=pack["fname"])
+            self.window.append_text(blue)
+            print('private picture')
+            return
 
         message = decrypt(self.private, pack['message'])
-        message = f'<span style=\" font-weight: 400; color: white; font-size: {self.settings["font-size"]};\" >{time.strftime("%H:%M", time.localtime())}</span>' \
+        message = f'<span style=\" font-weight: 400; color:{self.window.text_color}; font-size: {self.settings["font-size"]};\" >{time.strftime("%H:%M", time.localtime())}</span>' \
                   f'<span style=\"color: {self.settings["color"]}\">  {self.settings["login"]}: </span> {message}'
-        message = f'<span style=\" font-size: {self.settings["font-size"]}+2px; color: white;\" >' + message
-        if filename is not None:
-            message = message + f' --> <a href="">file</a> '
+        message = f'<span style=\" font-size: {self.settings["font-size"]}+2px; color:{self.window.text_color};\" >' + message
+        if ext in images:
+            message = message + f'<br> <a href="{filepath}"><img src="{filepath}" width="200" style="position: absolute; top: 0px; right: 0px;"></a><br>'
+        elif filepath is not None:
+            message = message + f' ||| <a href="{filepath}">{pack["fname"]}</a> '
             # TODO: Сделать ссылку на файл картинкой
         self.window.append_text(message)
 
@@ -117,10 +152,11 @@ class ClientProtocol(asyncio.Protocol):
             filename = self.file_to_send
             self.file_to_send = get_bytes(self.file_to_send)
             enc_file = encrypt_bytes(self.public, self.file_to_send)
-            ext = filename[filename.rfind('.') + 1:]
             content['attach'] = enc_file
-            content['ext'] = ext
+            content['fname'] = filename[filename.rfind("/") + 1:]
+            print(content['fname'])
             content['state'] = 4
+            self.start_time = time.time()
             self.file_to_send = None
 
     def send_pm(self, message: str, to: str = None, state: int = 2):
@@ -130,20 +166,17 @@ class ClientProtocol(asyncio.Protocol):
             pack = {"login": self.login, 'email': self.email, 'message': message, 'to': to, 'state': state,
                         'color': self.color}
             self.send_file(pack)
-            blue = f'<span style=\"font-weight: 400; font-size: {self.settings["font-size"]};\" >{time.strftime("%H:%M", time.localtime())}</span>'
+            if pack['state'] == 4:
+                pack['state'] = 6
+            print(pack['state'])
+            blue = f'<span style=\"font-weight: 400; color:{self.window.text_color}; font-size: {self.settings["font-size"]};\" >{time.strftime("%H:%M", time.localtime())}</span>'
             blue += f'<span style=\"color: {self.settings["color"]}\"> {pack["login"]}: </span> <span style=\"' \
-                    f'font-weight: 400; font-style: italic; color: orange;\" > {msg}</span> <img src="logo.png" align="right"> '
+                    f'font-weight: 400; font-style: italic; color: orange;\" > {msg}</span>'
             self.window.append_text(blue)
             pack = pickle.dumps(pack)
         elif state == 3:
             message = encrypt(self.public, message)
             pack = {"login": self.login, 'email': self.email, 'message': message, 'state': state, "color": self.color}
-            pack = pickle.dumps(pack)
-        elif state == 4:
-            attach = get_bytes('to_send.png')
-            message = encrypt(self.public, message)
-            pack = {"login": self.login, 'email': self.email, 'message': message, 'state': state, "color": self.color,
-                    'attach': attach, 'ext': 'png'}
             pack = pickle.dumps(pack)
         self.transport.write(pack)
 
@@ -193,6 +226,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.username_input.setText(self.user_settings['login'])
         self.password_input.setText(self.user_settings['password'])
         self.email_input.setText(self.user_settings['email'])
+        if self.user_settings['app_theme'] == 'light':
+            self.text_color = 'color:#000000'
+        else:
+            self.text_color = 'color:#ffffff'
         self.theme = f"./{self.user_settings['app_theme']}_theme.css"
         self.setStyleSheet(open(self.theme).read())
 
@@ -222,7 +259,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.clean_chat_button.clicked.connect(self.clean_chat)
         self.theme_button.clicked.connect(self.theme_changer)
         self.send_file_button.clicked.connect(self.send_file)
+        self.message_box.anchorClicked.connect(self.file_onAnchorClicked)
         self.show()
+
+    def file_onAnchorClicked(self, url):
+        os.startfile(url.path())
+        # os.open(url.path)
 
     def save_settings(self):
         font = self.font_input.text()
@@ -241,9 +283,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def theme_changer(self):
         if self.user_settings['app_theme'] == 'light':
             self.user_settings['app_theme'] = 'dark'
+            text = self.message_box.toHtml()
+            text = text.replace('color:#000000', 'color:#ffffff')
+            self.message_box.clear()
+            self.message_box.insertHtml(text)
             self.theme_button.setText('Light theme')
         else:
             self.user_settings['app_theme'] = 'light'
+            text = self.message_box.toHtml()
+            text = text.replace('color:#ffffff', 'color:#000000')
+            self.message_box.clear()
+            self.message_box.insertHtml(text)
             self.theme_button.setText('Dark theme')
         self.settings.set_settings(self.user_settings)
         self.theme = f"./{self.user_settings['app_theme']}_theme.css"
@@ -271,8 +321,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def send_file(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file',
                                             'c:\\', "All files (*.*)")
-        print(fname)
-        self.protocol.file_to_send = fname[0]
+        if fname[0] != '':
+            self.protocol.file_to_send = fname[0]
 
     def send_button_handler(self):
         message_text = self.message_input.text()
