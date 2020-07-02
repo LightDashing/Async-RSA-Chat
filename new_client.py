@@ -12,9 +12,9 @@ from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt
 from cache import get_bytes, save_bytes
 from PySide2 import QtGui, QtWidgets
-from PySide2.QtCore import QUrl
-from PySide2.QtGui import QIcon, QDesktopServices
-from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog
+from PySide2.QtCore import QUrl, Qt
+from PySide2.QtGui import QIcon, QDesktopServices, QImage
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog, QShortcut
 from Settings import Settings
 from asyncqt import QEventLoop
 from main_interface import Ui_MainWindow
@@ -50,7 +50,7 @@ class ClientProtocol(asyncio.Protocol):
     def data_received(self, data: bytes):
         filepath = None
         ext = None
-        images = ['.png', '.jpg', '.gif']
+        images = ['.png', '.jpg', '.gif', 'jpeg']
 
         try:
             pack = pickle.loads(data)
@@ -220,7 +220,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         # self.setStyleSheet(open('./style.css').read())
-
         self.settings = Settings()
         self.user_settings = self.settings.get_settings()
         self.username_input.setText(self.user_settings['login'])
@@ -247,6 +246,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             row = QtGui.QStandardItem(row)
             self.s_list_model.appendRow(row)
 
+        self.message_input.window = self
+        self.paste_bind = QShortcut(QtGui.QKeySequence(Qt.CTRL + Qt.Key_V), self.tab_chat)
+        self.paste_bind.activated.connect(self.paste)
+        self.paste_bind.setEnabled(True)
+        self.color_input.setText(self.user_settings['color'])
         self.server_list.clicked.connect(self.make_buttons_active)
         self.send_message_button.clicked.connect(self.send_button_handler)
         self.connect_server_button.clicked.connect(self.connect_button_handler)
@@ -262,6 +266,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.message_box.anchorClicked.connect(self.file_onAnchorClicked)
         self.show()
 
+    @staticmethod
     def file_onAnchorClicked(self, url):
         os.startfile(url.path())
         # os.open(url.path)
@@ -326,6 +331,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def send_button_handler(self):
         message_text = self.message_input.text()
+        if self.message_input.filepath is not None:
+            self.protocol.file_to_send = self.message_input.filepath
+            self.message_input.filepath = None
         if message_text == "":
             return
         count = 0
@@ -412,6 +420,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.user_settings['email'] = email
         self.user_settings['color'] = color
         self.settings.set_settings(self.user_settings)
+
+    def paste(self):
+        clipboard = QApplication.clipboard()
+        data = clipboard.mimeData()
+        if data.hasImage():
+            image = QImage(data.imageData())
+            try:
+                self.protocol.file_to_send = f"{os.getcwd()}/cache/{str(uuid.uuid4())}.jpg"
+            except AttributeError:
+                return
+            image.save(self.protocol.file_to_send)
+        elif data.hasText():
+            self.message_input.insert(data.text())
 
     def build_protocol(self):
         self.protocol = ClientProtocol(self)
