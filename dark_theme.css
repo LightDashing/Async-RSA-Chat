@@ -25,7 +25,7 @@ QTabWidget::tab-bar {
 }
 
 QTabBar::tab {
-    width: 175%;
+    width: 129%;
     background: #2476ed;
     border: 2px solid #21316e;
     border-bottom-color: #21316e;

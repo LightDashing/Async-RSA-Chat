@@ -17,7 +17,7 @@ from PySide2.QtGui import QIcon, QDesktopServices, QImage
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog, QShortcut
 from Settings import Settings
 from asyncqt import QEventLoop
-from main_interface import Ui_MainWindow
+from interface import Ui_MainWindow
 from Settings import Settings
 import pickle
 from Crypto.PublicKey import RSA
