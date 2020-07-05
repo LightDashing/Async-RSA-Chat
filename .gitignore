@@ -1,5 +1,6 @@
 # Default ignored files
 /venv/
 settings.json
-.idea
+/.idea/
 ServerSettings.json
+/__pycache__/

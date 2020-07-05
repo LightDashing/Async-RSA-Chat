@@ -98,6 +98,7 @@ class ServerProtocol(asyncio.Protocol):
            # save_bytes(b=file, file=f'{filename}.{pack["ext"]}')
             pack['attach'] = file
             self.send_message(pack, message, attach=True)
+            print(pack['fname'])
             return
         elif pack['state'] == 6:
             file = decrypt_bytes(self.private_key, pack['attach'])
@@ -127,7 +128,7 @@ class ServerProtocol(asyncio.Protocol):
             msg = encrypt(user.public_key, message)
             pack = {'login': content['login'], 'message': msg, 'state': state, 'color': content['color']}
             if attach:
-                pack['attach'] = encrypt_bytes(self.public_key, content['attach'])
+                pack['attach'] = encrypt_bytes(user.public_key, content['attach'])
                 pack['fname'] = content['fname']
                 pack['state'] = 8
             pack = pickle.dumps(pack)

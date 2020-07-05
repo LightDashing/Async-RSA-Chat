@@ -14,6 +14,7 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
                            QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
                            QPixmap, QRadialGradient, QRegExpValidator)
 from PySide2.QtWidgets import *
+from ext_interface import FileLineEdit
 
 
 class Ui_MainWindow(object):
@@ -286,8 +287,9 @@ class Ui_MainWindow(object):
 
         self.gridLayout_chat.addWidget(self.message_box, 1, 0, 1, 3)
 
-        self.message_input = QLineEdit(self.tab_chat)
+        self.message_input = FileLineEdit(self.tab_chat)
         self.message_input.setObjectName(u"message_input")
+        self.message_input.setDragEnabled(True)
 
         self.gridLayout_chat.addWidget(self.message_input, 2, 0, 1, 3)
 

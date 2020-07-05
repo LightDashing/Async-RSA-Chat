@@ -1,8 +1,1 @@
-{"login": "Hugrid",
-  "password": "Hugrid",
-  "email": "Hugrid@Hugrid.Hugrid",
-  "color": "orange",
-  "app_theme": "light",
-  "font": "normal",
-  "font-size": "11px",
-  "servers": {"localhost": {"ip": "127.0.0.1", "port": "8888"}, "Light": {"ip": "46.72.61.65", "port": "25332"}}}
+{"login": "TheLightDashing", "password": "qwerty1234", "email": "light@dashing.com", "color": "purple", "app_theme": "dark", "font": "normal", "font-size": "13px", "servers": {"localhost": {"ip": "127.0.0.1", "port": "8888"}, "Light": {"ip": "46.72.3.37", "port": "25332"}}}

@@ -2,29 +2,24 @@
 # Клиентское приложение с интерфейсом
 #
 import asyncio
-import pickle
 import sys
 import time
 from asyncio import transports
 import os
 
-from Crypto.PublicKey import RSA
-from Encryption import encrypt, decrypt
-from cache import get_bytes, save_bytes
+from cache import get_bytes, save_bytes, clear_cache
+import webbrowser as wb
 from PySide2 import QtGui, QtWidgets
 from PySide2.QtCore import QUrl, Qt
 from PySide2.QtGui import QIcon, QDesktopServices, QImage
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog, QShortcut
-from Settings import Settings
 from asyncqt import QEventLoop
 from interface import Ui_MainWindow
 from Settings import Settings
 import pickle
 from Crypto.PublicKey import RSA
 from Encryption import encrypt, decrypt, encrypt_bytes, decrypt_bytes
-from PySide2.QtGui import QIcon
 import uuid
-import hashlib
 
 
 class ClientProtocol(asyncio.Protocol):
@@ -61,7 +56,6 @@ class ClientProtocol(asyncio.Protocol):
             try:
                 pack = pickle.loads(b''.join(self.data))
                 self.data.clear()
-                print(f'Total time to send 100mb file is: {time.time() - self.start_time}')
             except pickle.UnpicklingError:
                 return
         if pack['state'] == 1:
@@ -121,7 +115,8 @@ class ClientProtocol(asyncio.Protocol):
             if ext in images:
                 pack["fname"] = f'{str(uuid.uuid4())}{ext}'
                 filepath = f'{os.getcwd()}/cache/{pack["fname"]}'
-                blue += f'<br> <a href="{filepath}"><img src="{filepath}" width="200" style="position: absolute; top: 0px; right: 0px;"></a><br>'
+                blue += f'<br> <a href="{filepath}"><img src="{filepath}" width="200" style=' \
+                        f'"position: absolute; top: 0px; right: 0px;"></a><br>'
             else:
                 blue += f' ||| <a href="{filepath}">{pack["fname"]}</a>'
             save_bytes(b=file, file=pack["fname"])
@@ -131,16 +126,17 @@ class ClientProtocol(asyncio.Protocol):
 
         message = decrypt(self.private, pack['message'])
         message = f'<span style=\" font-weight: 400; color:{self.window.text_color}; font-size: {self.settings["font-size"]};\" >{time.strftime("%H:%M", time.localtime())}</span>' \
-                  f'<span style=\"color: {self.settings["color"]}\">  {self.settings["login"]}: </span> {message}'
+                  f'<span style=\"color: {pack["color"]}\">  {pack["login"]}: </span> {message}'
         message = f'<span style=\" font-size: {self.settings["font-size"]}+2px; color:{self.window.text_color};\" >' + message
         if ext in images:
-            message = message + f'<br> <a href="{filepath}"><img src="{filepath}" width="200" style="position: absolute; top: 0px; right: 0px;"></a><br>'
+            message = message + f'<br> <a href="{filepath}"><img src="{filepath}" width="200" style="' \
+                                f'position: absolute; top: 0px; right: 0px;"></a><br>'
         elif filepath is not None:
             message = message + f' ||| <a href="{filepath}">{pack["fname"]}</a> '
             # TODO: Сделать ссылку на файл картинкой
         self.window.append_text(message)
 
-    async def send_data(self, message: str, state=None):
+    def send_data(self, message: str, state=None):
         message = encrypt(self.public, message)
         pack = {'login': self.login, 'email': self.email, 'message': message, 'state': state, 'color': self.color}
         self.send_file(pack)
@@ -169,7 +165,8 @@ class ClientProtocol(asyncio.Protocol):
             if pack['state'] == 4:
                 pack['state'] = 6
             print(pack['state'])
-            blue = f'<span style=\"font-weight: 400; color:{self.window.text_color}; font-size: {self.settings["font-size"]};\" >{time.strftime("%H:%M", time.localtime())}</span>'
+            blue = f'<span style=\"font-weight: 400; color:{self.window.text_color}; font-size: ' \
+                   f'{self.settings["font-size"]};\" >{time.strftime("%H:%M", time.localtime())}</span>'
             blue += f'<span style=\"color: {self.settings["color"]}\"> {pack["login"]}: </span> <span style=\"' \
                     f'font-weight: 400; font-style: italic; color: orange;\" > {msg}</span>'
             self.window.append_text(blue)
@@ -264,9 +261,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.theme_button.clicked.connect(self.theme_changer)
         self.send_file_button.clicked.connect(self.send_file)
         self.message_box.anchorClicked.connect(self.file_onAnchorClicked)
+        self.open_cache_button.clicked.connect(lambda: wb.open(f'{os.getcwd()}/cache/'))
+        self.clear_cache_button.clicked.connect(clear_cache)
         self.show()
 
-    @staticmethod
     def file_onAnchorClicked(self, url):
         os.startfile(url.path())
         # os.open(url.path)
@@ -355,8 +353,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
 
         self.message_input.clear()
-        loop = asyncio.get_running_loop()
-        loop.create_task(self.protocol.send_data(message_text))
+        self.protocol.send_data(message_text)
 
     def add_server(self):
         name = self.ip_servername.text()
@@ -411,7 +408,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         password = self.password_input.text()
         email = self.email_input.text()
         color = self.color_input.text()
-        theme = self.app_theme()
         if not username or not password or not email:
             self.create_error('All fields must not be empty.')
             return
@@ -438,6 +434,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.protocol = ClientProtocol(self)
         return self.protocol
 
+    # TODO: реализовать поиск серверов
+    # Пока что это небольшая заглушка, но должна работать в теории
+    async def ping_server(self, ip, port):
+        event_loop = asyncio.get_running_loop()
+        coroutine = event_loop.create_connection(
+            self.build_protocol,
+            ip,
+            port
+        )
+        try:
+            await asyncio.wait_for(coroutine, 5)
+            coroutine.close()
+            return ip, port
+        except (ConnectionRefusedError, ConnectionError, OSError):
+            return
+
     async def start(self, ip, port):
 
         event_loop = asyncio.get_running_loop()
@@ -454,14 +466,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.create_error('Connection Error')
 
 
-# dark_stylesheet = qdarkstyle.load_stylesheet_pyside2()
 app = QApplication()
 app.setWindowIcon(QtGui.QIcon("logo.png"))
-# app.setStyleSheet("dark_theme.css")
 loop = QEventLoop(app)
 asyncio.set_event_loop(loop)
 
 window = MainWindow()
 
-# loop.create_task(window.start()
 loop.run_forever()
