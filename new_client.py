@@ -5,7 +5,7 @@ import asyncio
 import sys
 import time
 from asyncio import transports
-import os
+import subprocess, os, platform
 
 from cache import get_bytes, save_bytes, clear_cache
 import webbrowser as wb
@@ -266,8 +266,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.show()
 
     def file_onAnchorClicked(self, url):
-        os.startfile(url.path())
-        # os.open(url.path)
+        if platform.system() == 'Darwin':       # macOS
+            subprocess.call(('open', url.path()))
+        elif platform.system() == 'Windows':    # Windows
+            os.startfile(url.path())
+        else:                                   # linux variants
+            subprocess.call(('xdg-open', url.path()))
 
     def save_settings(self):
         font = self.font_input.text()

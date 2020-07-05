@@ -3,4 +3,5 @@
 settings.json
 /.idea/
 ServerSettings.json
-/__pycache__/
+__pycache__/
+cache/
